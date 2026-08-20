@@ -121,6 +121,21 @@ class TerrainExplorer {
     }
     
     // ===== 加载地形 =====
+    getTerrainColor(height) {
+        // 复古地图配色
+        if (height < 0.1) {
+            return new THREE.Color(0.20, 0.39, 0.59); // 海洋蓝
+        } else if (height < 0.25) {
+            return new THREE.Color(0.63, 0.71, 0.51); // 平原
+        } else if (height < 0.45) {
+            return new THREE.Color(0.55, 0.63, 0.39); // 丘陵
+        } else if (height < 0.65) {
+            return new THREE.Color(0.63, 0.55, 0.35); // 山地
+        } else {
+            return new THREE.Color(0.71, 0.63, 0.51); // 高原
+        }
+    }
+    
     async loadTerrain() {
         const loader = new THREE.TextureLoader();
         
@@ -153,6 +168,8 @@ class TerrainExplorer {
         
         const positions = geometry.attributes.position;
         
+        const colors = [];
+        
         for (let i = 0; i < positions.count; i++) {
             const x = positions.getX(i);
             const y = positions.getY(i);
@@ -165,20 +182,25 @@ class TerrainExplorer {
             const idx = (py * image.width + px) * 4;
             
             const height = pixels[idx] / 255;
-            // 海洋区域平坦化（高度 < 0.08）
+            
+            // 海洋区域平坦化
             if (height < 0.08) {
                 positions.setZ(i, 0);
             } else {
                 positions.setZ(i, height * this.terrainHeight);
             }
+            
+            const color = this.getTerrainColor(height);
+            colors.push(color.r, color.g, color.b);
         }
         
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         geometry.computeVertexNormals();
         
-        // 使用真实卫星纹理作为表面贴图
+        // 顶点着色：复古陆地 + 蓝色海洋
         const material = new THREE.MeshStandardMaterial({
-            map: albedoMap,
-            roughness: 0.85,
+            vertexColors: true,
+            roughness: 0.9,
             metalness: 0.0,
             flatShading: false,
         });
@@ -188,6 +210,20 @@ class TerrainExplorer {
         this.terrainMesh.receiveShadow = true;
         this.terrainMesh.castShadow = true;
         this.terrainGroup.add(this.terrainMesh);
+        
+        // 国界线 decal overlay（albedo 纹理淡显，只显示线条）
+        const borderGeo = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize);
+        const borderMat = new THREE.MeshBasicMaterial({
+            map: albedoMap,
+            transparent: true,
+            opacity: 0.15,
+            depthWrite: false,
+            blending: THREE.LightenBlending,
+        });
+        this.borderOverlay = new THREE.Mesh(borderGeo, borderMat);
+        this.borderOverlay.rotation.x = -Math.PI / 2;
+        this.borderOverlay.position.y = 0.3;
+        this.terrainGroup.add(this.borderOverlay);
         
         // 纸质纹理叠加
         this.addPaperTexture();
