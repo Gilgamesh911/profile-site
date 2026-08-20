@@ -264,10 +264,13 @@ class TerrainExplorer {
         // 创建路线：桐乡 -> 成都 -> 合肥 -> 香港 -> 北京
         const routePoints = [
             this.cities.tongxiang,
-            this.chengdu,
-            this.hefei,
-            this.hongkong,
-            this.beijing,
+            this.cities.chengdu,
+            this.cities.hefei,
+            this.cities.hongkong,
+            this.cities.beijing,
+            this.cities.hefei,
+            this.cities.hongkong,
+            this.cities.beijing,
         ];
         
         const points = routePoints.map(city => {
