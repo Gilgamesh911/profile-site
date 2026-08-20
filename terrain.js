@@ -115,7 +115,7 @@ class TerrainExplorer {
     // ===== 初始相机：俯瞰全图 =====
     setInitialCamera() {
         // 正俯视全图
-        this.camera.position.set(0, 220, 0);
+        this.camera.position.set(0, 160, 0);
         this.camera.up.set(0, 0, -1);
         this.camera.lookAt(0, 0, 0);
     }
@@ -130,7 +130,7 @@ class TerrainExplorer {
                 loader.load('assets/terrain/chengdu_dem.png', resolve, undefined, reject);
             }),
             new Promise((resolve, reject) => {
-                loader.load('assets/terrain/china_albedo.png', resolve, undefined, reject);
+                loader.load('assets/terrain/mixed_terrain.png', resolve, undefined, reject);
             })
         ]);
         
@@ -165,7 +165,12 @@ class TerrainExplorer {
             const idx = (py * image.width + px) * 4;
             
             const height = pixels[idx] / 255;
-            positions.setZ(i, height * this.terrainHeight);
+            // 海洋区域平坦化（高度 < 0.08）
+            if (height < 0.08) {
+                positions.setZ(i, 0);
+            } else {
+                positions.setZ(i, height * this.terrainHeight);
+            }
         }
         
         geometry.computeVertexNormals();
@@ -486,7 +491,7 @@ class TerrainExplorer {
         
         // 封面阶段（progress < 0.12）：固定正俯视全图
         if (progress < 0.12) {
-            const overviewPos = new THREE.Vector3(0, 220, 0);
+            const overviewPos = new THREE.Vector3(0, 160, 0);
             this.camera.position.lerp(overviewPos, 0.05);
             this.camera.up.set(0, 0, -1);
             this.camera.lookAt(0, 0, 0);
