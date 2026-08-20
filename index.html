@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>徐振洋 | 从城乡规划到产品经理</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-bracket">&lt;</span>徐振洋<span class="logo-bracket">/&gt;</span>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#hero" class="nav-link active">关于我</a></li>
+                <li><a href="#map-overview" class="nav-link">旅程</a></li>
+                <li><a href="#tongxiang" class="nav-link">桐乡</a></li>
+                <li><a href="#chengdu" class="nav-link">成都</a></li>
+                <li><a href="#hefei" class="nav-link">合肥</a></li>
+                <li><a href="#hongkong" class="nav-link">香港</a></li>
+                <li><a href="#beijing" class="nav-link">北京</a></li>
+                <li><a href="#stars" class="nav-link">星辰</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ① 封面 / 自我评价 -->
+    <section id="hero" class="section" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div class="container" style="text-align: center;">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-tag">关于我</span>
+                <h1 class="section-title" style="font-size: 3.5rem; margin-bottom: 1rem;">
+                    徐振洋
+                </h1>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin: 0 auto 2rem;">
+                    从城乡规划到产品经理，在空间的维度里理解用户，在时间的流动中创造体验
+                </p>
+            </div>
+            <div id="self-evaluation" style="max-width: 800px; margin: 0 auto; text-align: left;">
+                <!-- 自我评价内容占位 -->
+                <div style="background: var(--bg-card); border: 1px dashed var(--border-glow); border-radius: 12px; padding: 2rem; color: var(--text-muted); text-align: center;">
+                    <i class="fas fa-pen-fancy" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-cyan);"></i>
+                    <p>自我评价内容将在后续补充...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ② 地图总览 -->
+    <section id="map-overview" class="map-overview section">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 3rem;" data-animate="fade-up">
+                <span class="section-tag">空间之路</span>
+                <h2 class="section-title">我的 <span class="highlight">旅程</span></h2>
+                <p class="section-subtitle">一条穿越中国的成长轨迹</p>
+            </div>
+            <div class="map-container" data-animate="fade-in">
+                <svg class="map-svg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 中国地图轮廓（简化版） -->
+                    <path class="map-path" id="china-outline" d="M220,200 L240,180 L280,170 L320,165 L360,160 L400,155 L440,150 L480,145 L520,140 L560,135 L600,130 L620,140 L630,160 L640,180 L650,200 L660,220 L665,240 L660,260 L650,280 L640,300 L630,320 L620,340 L610,360 L600,380 L590,400 L580,420 L570,440 L560,460 L550,480 L540,500 L530,520 L520,540 L510,560 L500,580 L490,590 L480,595 L470,590 L460,580 L450,570 L440,560 L430,550 L420,540 L410,530 L400,520 L390,510 L380,500 L370,490 L360,480 L350,470 L340,460 L330,450 L320,440 L310,430 L300,420 L290,410 L280,400 L270,390 L260,380 L250,370 L240,360 L230,350 L220,340 L210,330 L200,320 L190,310 L180,300 L170,290 L160,280 L150,270 L140,260 L130,250 L120,240 L110,230 L100,220 L90,210 L80,200 L70,190 L65,180 L70,170 L80,160 L90,150 L100,140 L110,130 L120,125 L130,120 L140,118 L150,116 L160,114 L170,112 L180,110 L190,108 L200,106 L210,105 L220,200Z"/>
+                    
+                    <!-- 路线：桐乡 → 成都 → 合肥 → 香港 → 北京 -->
+                    <path class="map-route" id="journey-route" d="M620,280 L380,320 L460,290 L580,420 L480,180" fill="none"/>
+                    
+                    <!-- 城市节点 -->
+                    <!-- 桐乡 -->
+                    <circle class="city-node" cx="620" cy="280" r="5" data-city="tongxiang"/>
+                    <text class="city-label-map" x="620" y="300">桐乡</text>
+                    
+                    <!-- 成都 -->
+                    <circle class="city-node" cx="380" cy="320" r="5" data-city="chengdu"/>
+                    <text class="city-label-map" x="380" y="340">成都</text>
+                    
+                    <!-- 合肥 -->
+                    <circle class="city-node" cx="460" cy="290" r="5" data-city="hefei"/>
+                    <text class="city-label-map" x="460" y="270">合肥</text>
+                    
+                    <!-- 香港 -->
+                    <circle class="city-node" cx="580" cy="420" r="5" data-city="hongkong"/>
+                    <text class="city-label-map" x="580" y="445">香港</text>
+                    
+                    <!-- 北京 -->
+                    <circle class="city-node" cx="480" cy="180" r="5" data-city="beijing"/>
+                    <text class="city-label-map" x="480" y="165">北京</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- ③ 桐乡 -->
+    <section id="tongxiang" class="city-section">
+        <div class="container city-content">
+            <div class="city-visual" data-animate="slide-left">
+                <div class="wireframe-container" id="tongxiang-wireframe">
+                    <!-- 乌镇水乡肌理 SVG -->
+                    <svg class="wireframe-svg" viewBox="0 0 400 400">
+                        <!-- 河道 -->
+                        <path class="glow" d="M50,200 Q100,180 150,200 T250,200 T350,200" stroke-width="2"/>
+                        <path d="M80,100 Q120,120 150,100 T250,120 T320,100" opacity="0.4"/>
+                        <path d="M80,300 Q120,280 150,300 T250,280 T320,300" opacity="0.4"/>
+                        <!-- 街巷网格 -->
+                        <line x1="100" y1="50" x2="100" y2="350"/>
+                        <line x1="150" y1="50" x2="150" y2="350"/>
+                        <line x1="200" y1="50" x2="200" y2="350"/>
+                        <line x1="250" y1="50" x2="250" y2="350"/>
+                        <line x1="300" y1="50" x2="300" y2="350"/>
+                        <line x1="50" y1="100" x2="350" y2="100"/>
+                        <line x1="50" y1="150" x2="350" y2="150"/>
+                        <line x1="50" y1="250" x2="350" y2="250"/>
+                        <line x1="50" y1="300" x2="350" y2="300"/>
+                        <!-- 建筑轮廓 -->
+                        <rect x="110" y="110" width="30" height="30"/>
+                        <rect x="160" y="160" width="30" height="30"/>
+                        <rect x="210" y="110" width="30" height="30"/>
+                        <rect x="260" y="210" width="30" height="30"/>
+                        <rect x="110" y="260" width="30" height="30"/>
+                        <rect x="210" y="260" width="30" height="30"/>
+                        <rect x="260" y="260" width="30" height="30"/>
+                        <!-- 桥梁 -->
+                        <line x1="140" y1="190" x2="160" y2="210" stroke-width="2"/>
+                        <line x1="240" y1="190" x2="260" y2="210" stroke-width="2"/>
+                        <!-- 标注 -->
+                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">乌镇 · 水乡肌理</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="city-info" data-animate="slide-right">
+                <div class="city-label">第一站</div>
+                <h2 class="city-name">浙江 · 桐乡</h2>
+                <div class="city-period">起点 · 家乡与启蒙</div>
+                <p class="city-desc">
+                    出生于浙江桐乡，乌镇的千年水乡肌理是我对「空间」最初的认知。小桥流水、街巷纵横，这些传统聚落的空间智慧，潜移默化地塑造了我对城市规划的兴趣。
+                </p>
+                
+                <div class="experience-card">
+                    <h4>营造原度科技有限公司 · 产品助理</h4>
+                    <div class="company">2024.02 - 2024.06 · 智慧城市部</div>
+                    <p>负责 Citywalk 路径定制功能的产品设计，使用 Scrapy 爬取小红书 3W+ 评论，结合情感分析输出 56 类 POI 的个性化推荐路径。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>浙江省智慧城市研究所 · AI产品助理</h4>
+                    <div class="company">2024.06 - 2024.10 · 信息资源部</div>
+                    <p>参与 AIGC 智能问答平台研发，构建规划标准规范知识库（78个国标+168个法规），通过微调将问答准确率提升至 99.9%，供 900 人内部使用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ④ 成都 -->
+    <section id="chengdu" class="city-section" style="background: var(--bg-secondary);">
+        <div class="container city-content">
+            <div class="city-info" data-animate="slide-left">
+                <div class="city-label">第二站</div>
+                <h2 class="city-name">四川 · 成都</h2>
+                <div class="city-period">2020.09 - 2025.06 · 本科阶段</div>
+                <p class="city-desc">
+                    在西南交通大学建筑学院攻读城乡规划专业，TOP 10% 成绩毕业。五年的专业训练让我掌握了空间分析、建筑设计与城市研究的方法论。
+                </p>
+                
+                <div class="experience-card">
+                    <h4>西南交通大学 · 城乡规划（本科）</h4>
+                    <div class="company">建筑学院 · 指导老师：杨林川</div>
+                    <p>校级招生就业处副理事长，曾获校级综合奖学金一等奖。主修城乡规划，系统学习空间句法、GIS 分析、BIM 建模与城市设计。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>国创项目 · 绵阳三台云台观古建筑三维模型</h4>
+                    <div class="company">2023.04 - 2024.04 · 第二负责人</div>
+                    <p>负责 4 个古建筑的三维模型修复（材质与贴图），参与现场测绘调研与成果撰写。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>国创项目 · 成都社区绿道物理环境调查</h4>
+                    <div class="company">2022.04 - 2023.05 · 第二负责人</div>
+                    <p>负责街景照片网络爬取与语义分割处理，参与现场实验与数据后期处理。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>CEAC 2024 国际会议论文 · 第二作者</h4>
+                    <div class="company">Understanding the topological characteristics of traditional courtyard houses</div>
+                    <p>负责空间句法理论研究与运用阐述，帮助参数定义修改与整体逻辑梳理。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>BIM 设计创新创业大赛 · 特等奖</h4>
+                    <div class="company">2022.02 - 2022.06 · 建模手</div>
+                    <p>独立完成建筑形体与结构设计，负责 3 个单体建筑 BIM 建模与图纸绘制。</p>
+                </div>
+            </div>
+            <div class="city-visual" data-animate="slide-right">
+                <div class="wireframe-container" id="chengdu-wireframe">
+                    <!-- 古建筑/BIM线框 SVG -->
+                    <svg class="wireframe-svg" viewBox="0 0 400 400">
+                        <!-- 斗拱层 -->
+                        <rect x="120" y="100" width="160" height="20" class="glow"/>
+                        <rect x="110" y="120" width="180" height="15"/>
+                        <rect x="100" y="135" width="200" height="10"/>
+                        <!-- 屋顶 -->
+                        <path class="glow" d="M80,100 L200,40 L320,100" stroke-width="2"/>
+                        <path d="M100,100 L200,50 L300,100" opacity="0.5"/>
+                        <!-- 柱子 -->
+                        <line x1="140" y1="145" x2="140" y2="300"/>
+                        <line x1="180" y1="145" x2="180" y2="300"/>
+                        <line x1="220" y1="145" x2="220" y2="300"/>
+                        <line x1="260" y1="145" x2="260" y2="300"/>
+                        <!-- 基座 -->
+                        <rect x="120" y="300" width="160" height="30"/>
+                        <rect x="110" y="330" width="180" height="15"/>
+                        <!-- 庭院 -->
+                        <rect x="160" y="180" width="80" height="80" opacity="0.3"/>
+                        <line x1="160" y1="180" x2="240" y2="260"/>
+                        <line x1="240" y1="180" x2="160" y2="260"/>
+                        <!-- 侧殿 -->
+                        <rect x="60" y="160" width="50" height="80"/>
+                        <rect x="290" y="160" width="50" height="80"/>
+                        <!-- BIM 网格 -->
+                        <line x1="50" y1="50" x2="350" y2="50" opacity="0.2"/>
+                        <line x1="50" y1="350" x2="350" y2="350" opacity="0.2"/>
+                        <line x1="50" y1="50" x2="50" y2="350" opacity="0.2"/>
+                        <line x1="350" y1="50" x2="350" y2="350" opacity="0.2"/>
+                        <!-- 标注 -->
+                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">西南交大 · 古建筑 BIM</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⑤ 合肥 -->
+    <section id="hefei" class="city-section">
+        <div class="container city-content">
+            <div class="city-visual" data-animate="slide-left">
+                <div class="wireframe-container" id="hefei-wireframe">
+                    <!-- 合肥城市网格 + AI节点 SVG -->
+                    <svg class="wireframe-svg" viewBox="0 0 400 400">
+                        <!-- 城市网格 -->
+                        <g opacity="0.3">
+                            <line x1="50" y1="80" x2="350" y2="80"/>
+                            <line x1="50" y1="120" x2="350" y2="120"/>
+                            <line x1="50" y1="160" x2="350" y2="160"/>
+                            <line x1="50" y1="200" x2="350" y2="200"/>
+                            <line x1="50" y1="240" x2="350" y2="240"/>
+                            <line x1="50" y1="280" x2="350" y2="280"/>
+                            <line x1="50" y1="320" x2="350" y2="320"/>
+                            <line x1="80" y1="50" x2="80" y2="350"/>
+                            <line x1="140" y1="50" x2="140" y2="350"/>
+                            <line x1="200" y1="50" x2="200" y2="350"/>
+                            <line x1="260" y1="50" x2="260" y2="350"/>
+                            <line x1="320" y1="50" x2="320" y2="350"/>
+                        </g>
+                        <!-- 中心节点 -->
+                        <circle class="glow" cx="200" cy="200" r="30" stroke-width="2"/>
+                        <circle cx="200" cy="200" r="20" class="glow"/>
+                        <circle cx="200" cy="200" r="10" fill="var(--accent-cyan)"/>
+                        <!-- 神经网络连接 -->
+                        <line x1="200" y1="170" x2="200" y2="130" class="glow"/>
+                        <line x1="200" y1="230" x2="200" y2="270" class="glow"/>
+                        <line x1="170" y1="200" x2="130" y2="200" class="glow"/>
+                        <line x1="230" y1="200" x2="270" y2="200" class="glow"/>
+                        <line x1="178" y1="178" x2="150" y2="150" opacity="0.6"/>
+                        <line x1="222" y1="178" x2="250" y2="150" opacity="0.6"/>
+                        <line x1="178" y1="222" x2="150" y2="250" opacity="0.6"/>
+                        <line x1="222" y1="222" x2="250" y2="250" opacity="0.6"/>
+                        <!-- 外围节点 -->
+                        <circle cx="200" cy="130" r="6" class="glow"/>
+                        <circle cx="200" cy="270" r="6" class="glow"/>
+                        <circle cx="130" cy="200" r="6" class="glow"/>
+                        <circle cx="270" cy="200" r="6" class="glow"/>
+                        <circle cx="150" cy="150" r="4" opacity="0.5"/>
+                        <circle cx="250" cy="150" r="4" opacity="0.5"/>
+                        <circle cx="150" cy="250" r="4" opacity="0.5"/>
+                        <circle cx="250" cy="250" r="4" opacity="0.5"/>
+                        <!-- 数据流 -->
+                        <circle cx="200" cy="150" r="2" fill="var(--accent-amber)" opacity="0.8">
+                            <animate attributeName="cy" values="170;130;170" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="200" cy="250" r="2" fill="var(--accent-amber)" opacity="0.8">
+                            <animate attributeName="cy" values="230;270;230" dur="2s" repeatCount="indefinite"/>
+                        </circle>
+                        <!-- 标注 -->
+                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">科大讯飞 · AI神经网络</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="city-info" data-animate="slide-right">
+                <div class="city-label">第三站</div>
+                <h2 class="city-name">安徽 · 合肥</h2>
+                <div class="city-period">2025.03 - 2025.07 · 科大讯飞</div>
+                <p class="city-desc">
+                    在科大讯飞消费者 BG 担任 AI 产品运营，从空间规划转向 AI 产品，探索技术与用户需求的交汇点。
+                </p>
+                
+                <div class="experience-card">
+                    <h4>讯飞智文 AIPPT · 活动策略</h4>
+                    <div class="company">AI产品运营 · 消费者 BG</div>
+                    <p>策划年卡拼团促销活动，锚定教师与职场白领人群，设计差异化权益。活动笔单价提高 74%，年卡用户增加 5.1%。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>答辩押题功能 · 产品上线</h4>
+                    <div class="company">AI产品运营 · 消费者 BG</div>
+                    <p>针对毕业答辩场景上线演讲备注与押题功能，编写 8 个特化 prompt，学生群体使用率高达 79%。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>OceanDoc 海外运营 · 达人建联</h4>
+                    <div class="company">AI产品运营 · 消费者 BG</div>
+                    <p>建联潜在 KOL 136 位，敲定合作 34 位，通过合作渠道新增海外用户 8.4w，用户增长 32%。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⑥ 香港 -->
+    <section id="hongkong" class="city-section" style="background: var(--bg-secondary);">
+        <div class="container city-content">
+            <div class="city-info" data-animate="slide-left">
+                <div class="city-label">第四站</div>
+                <h2 class="city-name">香港</h2>
+                <div class="city-period">2025.09 - 2026.11 · 硕士研究生</div>
+                <p class="city-desc">
+                    在香港大学计算机与数据科学学院攻读电子商务与互联网工程硕士，在东方之珠的天际线下，探索技术与商业的无限可能。
+                </p>
+                
+                <div class="experience-card">
+                    <h4>香港大学 · 电子商务与互联网工程</h4>
+                    <div class="company">计算机与数据科学学院 · 硕士</div>
+                    <p>全日制硕士项目，系统学习电子商务技术、数据科学、互联网产品设计与运营策略。</p>
+                </div>
+            </div>
+            <div class="city-visual" data-animate="slide-right">
+                <div class="wireframe-container" id="hongkong-wireframe">
+                    <!-- 香港天际线 SVG -->
+                    <svg class="wireframe-svg" viewBox="0 0 400 400">
+                        <!-- 海面 -->
+                        <line x1="0" y1="320" x2="400" y2="320" opacity="0.3"/>
+                        <line x1="0" y1="330" x2="400" y2="330" opacity="0.2"/>
+                        <line x1="0" y1="340" x2="400" y2="340" opacity="0.1"/>
+                        <!-- 建筑剪影 -->
+                        <rect x="40" y="220" width="30" height="100" class="glow"/>
+                        <rect x="80" y="180" width="25" height="140" class="glow"/>
+                        <rect x="115" y="200" width="35" height="120"/>
+                        <rect x="160" y="140" width="20" height="180" class="glow"/>
+                        <rect x="190" y="160" width="30" height="160"/>
+                        <rect x="230" y="120" width="25" height="200" class="glow"/>
+                        <rect x="265" y="170" width="35" height="150"/>
+                        <rect x="310" y="150" width="20" height="170" class="glow"/>
+                        <rect x="340" y="190" width="30" height="130"/>
+                        <!-- 建筑窗户细节 -->
+                        <g opacity="0.5">
+                            <rect x="45" y="230" width="5" height="5"/>
+                            <rect x="60" y="230" width="5" height="5"/>
+                            <rect x="45" y="250" width="5" height="5"/>
+                            <rect x="60" y="250" width="5" height="5"/>
+                            <rect x="85" y="200" width="4" height="4"/>
+                            <rect x="95" y="200" width="4" height="4"/>
+                            <rect x="85" y="220" width="4" height="4"/>
+                            <rect x="95" y="220" width="4" height="4"/>
+                        </g>
+                        <!-- 山顶 -->
+                        <path d="M350,100 L380,60 L400,80 L400,100 Z" opacity="0.3"/>
+                        <!-- 天星小轮 -->
+                        <path d="M80,340 L120,340 L110,350 L90,350 Z" opacity="0.6"/>
+                        <!-- 激光 -->
+                        <line x1="200" y1="120" x2="150" y2="50" opacity="0.4"/>
+                        <line x1="200" y1="120" x2="250" y2="50" opacity="0.4"/>
+                        <!-- 标注 -->
+                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">香港 · 维港天际线</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⑦ 北京 -->
+    <section id="beijing" class="city-section">
+        <div class="container city-content">
+            <div class="city-visual" data-animate="slide-left">
+                <div class="wireframe-container" id="beijing-wireframe">
+                    <!-- 北京中轴线/胡同肌理 SVG -->
+                    <svg class="wireframe-svg" viewBox="0 0 400 400">
+                        <!-- 中轴线 -->
+                        <line class="glow" x1="200" y1="30" x2="200" y2="370" stroke-width="2"/>
+                        <!-- 对称建筑 -->
+                        <rect x="180" y="50" width="40" height="30" class="glow"/>
+                        <rect x="170" y="100" width="60" height="25"/>
+                        <rect x="185" y="145" width="30" height="20" class="glow"/>
+                        <rect x="175" y="185" width="50" height="30"/>
+                        <rect x="190" y="230" width="20" height="60" class="glow"/>
+                        <rect x="180" y="305" width="40" height="25"/>
+                        <rect x="185" y="345" width="30" height="20"/>
+                        <!-- 胡同网格 -->
+                        <g opacity="0.3">
+                            <line x1="50" y1="80" x2="160" y2="80"/>
+                            <line x1="50" y1="110" x2="160" y2="110"/>
+                            <line x1="50" y1="140" x2="160" y2="140"/>
+                            <line x1="50" y1="170" x2="160" y2="170"/>
+                            <line x1="50" y1="230" x2="160" y2="230"/>
+                            <line x1="50" y1="260" x2="160" y2="260"/>
+                            <line x1="50" y1="290" x2="160" y2="290"/>
+                            <line x1="50" y1="320" x2="160" y2="320"/>
+                            
+                            <line x1="80" y1="80" x2="80" y2="170"/>
+                            <line x1="110" y1="80" x2="110" y2="170"/>
+                            <line x1="140" y1="80" x2="140" y2="170"/>
+                            <line x1="80" y1="230" x2="80" y2="320"/>
+                            <line x1="110" y1="230" x2="110" y2="320"/>
+                            <line x1="140" y1="230" x2="140" y2="320"/>
+                            
+                            <line x1="240" y1="80" x2="350" y2="80"/>
+                            <line x1="240" y1="110" x2="350" y2="110"/>
+                            <line x1="240" y1="140" x2="350" y2="140"/>
+                            <line x1="240" y1="170" x2="350" y2="170"/>
+                            <line x1="240" y1="230" x2="350" y2="230"/>
+                            <line x1="240" y1="260" x2="350" y2="260"/>
+                            <line x1="240" y1="290" x2="350" y2="290"/>
+                            <line x1="240" y1="320" x2="350" y2="320"/>
+                            
+                            <line x1="260" y1="80" x2="260" y2="170"/>
+                            <line x1="290" y1="80" x2="290" y2="170"/>
+                            <line x1="320" y1="80" x2="320" y2="170"/>
+                            <line x1="260" y1="230" x2="260" y2="320"/>
+                            <line x1="290" y1="230" x2="290" y2="320"/>
+                            <line x1="320" y1="230" x2="320" y2="320"/>
+                        </g>
+                        <!-- 四合院 -->
+                        <rect x="85" y="245" width="20" height="20" opacity="0.6"/>
+                        <rect x="265" y="245" width="20" height="20" opacity="0.6"/>
+                        <rect x="115" y="275" width="20" height="20" opacity="0.6"/>
+                        <rect x="295" y="275" width="20" height="20" opacity="0.6"/>
+                        <!-- 标注 -->
+                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">北京 · 中轴线与胡同</text>
+                    </svg>
+                </div>
+            </div>
+            <div class="city-info" data-animate="slide-right">
+                <div class="city-label">第五站</div>
+                <h2 class="city-name">北京</h2>
+                <div class="city-period">2025.12 - 2026.07</div>
+                <p class="city-desc">
+                    在首都的两段产品实习经历，从推荐策略到商业化策略，在数据驱动的互联网产品中快速成长。
+                </p>
+                
+                <div class="experience-card">
+                    <h4>去哪儿 · 推荐策略产品</h4>
+                    <div class="company">2025.12 - 2026.03 · 公共产品</div>
+                    <p>优化二屏推荐系统，设计「item频控-滑窗CTR衰减-曝光阶梯降权」三层过曝治理。人均VV从 1.71 提升至 2.26，深度用户占比从 28.6% 提升至 30.2%。</p>
+                </div>
+                
+                <div class="experience-card">
+                    <h4>美团 · 商业化策略产品</h4>
+                    <div class="company">2026.03 - 2026.07 · 核心本地商业</div>
+                    <p>推出新店流量扶持机制，新商户冷启动期从 9.27 天缩短至 6.77 天，新商户 ROI 从 1.2 提升至 1.9~2.1。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⑧ 星辰大海 -->
+    <section id="stars" class="stars-section section">
+        <div class="stars-bg" id="stars-canvas"></div>
+        <div class="stars-content">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-tag">未完待续</span>
+                <h2 class="stars-title">星辰大海</h2>
+                <p class="stars-subtitle">
+                    从乌镇的水巷到维港的霓虹，从古建筑测绘到 AI 产品运营。<br>
+                    空间是我的起点，而终点是无限的星辰大海。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能标签 -->
+    <section class="skills-section section">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 2rem;" data-animate="fade-up">
+                <span class="section-tag">技能栈</span>
+                <h2 class="section-title">Tools & <span class="highlight">Skills</span></h2>
+            </div>
+            <div class="skills-grid" data-animate="fade-up">
+                <span class="skill-tag">城乡规划</span>
+                <span class="skill-tag">空间句法</span>
+                <span class="skill-tag">BIM 建模</span>
+                <span class="skill-tag">GIS 分析</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">Scrapy</span>
+                <span class="skill-tag">数据分析</span>
+                <span class="skill-tag">AI 产品运营</span>
+                <span class="skill-tag">推荐策略</span>
+                <span class="skill-tag">商业化策略</span>
+                <span class="skill-tag">AIGC</span>
+                <span class="skill-tag">用户调研</span>
+                <span class="skill-tag">KOL 运营</span>
+                <span class="skill-tag">BI 数据看板</span>
+                <span class="skill-tag">产品策划</span>
+                <span class="skill-tag">A/B 测试</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系 -->
+    <section class="contact-section section">
+        <div class="container">
+            <div class="section-header" data-animate="fade-up">
+                <span class="section-tag">联系</span>
+                <h2 class="section-title">Get In <span class="highlight">Touch</span></h2>
+                <p class="section-subtitle">期待与你交流</p>
+            </div>
+            <div style="color: var(--text-secondary); margin-bottom: 2rem;" data-animate="fade-up">
+                <p><i class="fas fa-envelope" style="color: var(--accent-cyan); margin-right: 0.5rem;"></i> xzy20010911@163.com</p>
+                <p style="margin-top: 0.5rem;"><i class="fas fa-phone" style="color: var(--accent-cyan); margin-right: 0.5rem;"></i> +86-13750755847</p>
+            </div>
+            <div class="contact-links" data-animate="fade-up">
+                <a href="#" class="contact-link" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" class="contact-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="contact-link" title="微信"><i class="fab fa-weixin"></i></a>
+                <a href="mailto:xzy20010911@163.com" class="contact-link" title="邮箱"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p> 徐振洋 · 从城乡规划到产品经理 · 星辰大海</p>
+        </div>
+    </footer>
+
+    <!-- 回到顶部 -->
+    <button class="back-to-top" id="backToTop">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
