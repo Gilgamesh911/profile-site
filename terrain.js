@@ -122,9 +122,16 @@ class TerrainExplorer {
     // ===== 加载地形 =====
     async loadTerrain() {
         const loader = new THREE.TextureLoader();
-        const heightMap = await new Promise((resolve, reject) => {
-            loader.load('assets/terrain/chengdu_dem.png', resolve, undefined, reject);
-        });
+        
+        // 同时加载高度图和纹理图
+        const [heightMap, albedoMap] = await Promise.all([
+            new Promise((resolve, reject) => {
+                loader.load('assets/terrain/chengdu_dem.png', resolve, undefined, reject);
+            }),
+            new Promise((resolve, reject) => {
+                loader.load('assets/terrain/china_albedo.png', resolve, undefined, reject);
+            })
+        ]);
         
         const image = heightMap.image;
         const canvas = document.createElement('canvas');
@@ -144,7 +151,6 @@ class TerrainExplorer {
         );
         
         const positions = geometry.attributes.position;
-        const colors = [];
         
         for (let i = 0; i < positions.count; i++) {
             const x = positions.getX(i);
@@ -159,17 +165,14 @@ class TerrainExplorer {
             
             const height = pixels[idx] / 255;
             positions.setZ(i, height * this.terrainHeight);
-            
-            const color = this.getTerrainColor(height);
-            colors.push(color.r, color.g, color.b);
         }
         
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         geometry.computeVertexNormals();
         
+        // 使用真实卫星纹理作为表面贴图
         const material = new THREE.MeshStandardMaterial({
-            vertexColors: true,
-            roughness: 0.9,
+            map: albedoMap,
+            roughness: 0.85,
             metalness: 0.0,
             flatShading: false,
         });
@@ -184,20 +187,6 @@ class TerrainExplorer {
         this.addPaperTexture();
         
         this.isLoaded = true;
-    }
-    
-    getTerrainColor(height) {
-        if (height < 0.1) {
-            return new THREE.Color(0.70, 0.78, 0.63);
-        } else if (height < 0.25) {
-            return new THREE.Color(0.63, 0.71, 0.51);
-        } else if (height < 0.45) {
-            return new THREE.Color(0.55, 0.63, 0.39);
-        } else if (height < 0.65) {
-            return new THREE.Color(0.63, 0.55, 0.35);
-        } else {
-            return new THREE.Color(0.71, 0.63, 0.51);
-        }
     }
     
     addPaperTexture() {
@@ -779,7 +768,7 @@ class TerrainExplorer {
         geometry.computeVertexNormals();
         
         const material = new THREE.MeshStandardMaterial({
-            color: 0x8fbc8f,
+            color: 0x4a7c8c,
             roughness: 0.9,
             metalness: 0.0,
         });
