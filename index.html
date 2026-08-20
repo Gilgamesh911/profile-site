@@ -101,61 +101,14 @@
     <section id="tongxiang" class="city-section">
         <div class="container city-content">
             <div class="city-visual" data-animate="slide-left">
-                <div class="wireframe-container" id="tongxiang-wireframe">
-                    <!-- 乌镇水乡肌理 SVG -->
-                    <svg class="wireframe-svg" viewBox="0 0 400 400">
-                        <!-- 河道 -->
-                        <path class="glow" d="M50,200 Q100,180 150,200 T250,200 T350,200" stroke-width="2"/>
-                        <path d="M80,100 Q120,120 150,100 T250,120 T320,100" opacity="0.4"/>
-                        <path d="M80,300 Q120,280 150,300 T250,280 T320,300" opacity="0.4"/>
-                        <!-- 街巷网格 -->
-                        <line x1="100" y1="50" x2="100" y2="350"/>
-                        <line x1="150" y1="50" x2="150" y2="350"/>
-                        <line x1="200" y1="50" x2="200" y2="350"/>
-                        <line x1="250" y1="50" x2="250" y2="350"/>
-                        <line x1="300" y1="50" x2="300" y2="350"/>
-                        <line x1="50" y1="100" x2="350" y2="100"/>
-                        <line x1="50" y1="150" x2="350" y2="150"/>
-                        <line x1="50" y1="250" x2="350" y2="250"/>
-                        <line x1="50" y1="300" x2="350" y2="300"/>
-                        <!-- 建筑轮廓 -->
-                        <rect x="110" y="110" width="30" height="30"/>
-                        <rect x="160" y="160" width="30" height="30"/>
-                        <rect x="210" y="110" width="30" height="30"/>
-                        <rect x="260" y="210" width="30" height="30"/>
-                        <rect x="110" y="260" width="30" height="30"/>
-                        <rect x="210" y="260" width="30" height="30"/>
-                        <rect x="260" y="260" width="30" height="30"/>
-                        <!-- 桥梁 -->
-                        <line x1="140" y1="190" x2="160" y2="210" stroke-width="2"/>
-                        <line x1="240" y1="190" x2="260" y2="210" stroke-width="2"/>
-                        <!-- 标注 -->
-                        <text x="200" y="380" text-anchor="middle" fill="var(--accent-cyan)" font-size="12" opacity="0.8">乌镇 · 水乡肌理</text>
-                    </svg>
+                <div class="wireframe-container" id="tongxiang-3d" style="background: var(--bg-primary); border-radius: 12px;">
+                    <!-- Three.js 3D 城市模型将在这里渲染 -->
                 </div>
-            </div>
-            <div class="city-info" data-animate="slide-right">
-                <div class="city-label">第一站</div>
-                <h2 class="city-name">浙江 · 桐乡</h2>
-                <div class="city-period">起点 · 家乡与启蒙</div>
-                <p class="city-desc">
-                    出生于浙江桐乡，乌镇的千年水乡肌理是我对「空间」最初的认知。小桥流水、街巷纵横，这些传统聚落的空间智慧，潜移默化地塑造了我对城市规划的兴趣。
+                <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                    <i class="fas fa-mouse"></i> 拖拽旋转 · 滚轮缩放
                 </p>
-                
-                <div class="experience-card">
-                    <h4>营造原度科技有限公司 · 产品助理</h4>
-                    <div class="company">2024.02 - 2024.06 · 智慧城市部</div>
-                    <p>负责 Citywalk 路径定制功能的产品设计，使用 Scrapy 爬取小红书 3W+ 评论，结合情感分析输出 56 类 POI 的个性化推荐路径。</p>
-                </div>
-                
-                <div class="experience-card">
-                    <h4>浙江省智慧城市研究所 · AI产品助理</h4>
-                    <div class="company">2024.06 - 2024.10 · 信息资源部</div>
-                    <p>参与 AIGC 智能问答平台研发，构建规划标准规范知识库（78个国标+168个法规），通过微调将问答准确率提升至 99.9%，供 900 人内部使用。</p>
-                </div>
             </div>
-        </div>
-    </section>
+            </div>
 
     <!-- ④ 成都 -->
     <section id="chengdu" class="city-section" style="background: var(--bg-secondary);">
@@ -545,9 +498,26 @@
         </svg>
     </button>
 
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="city3d.js"></script>
     <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
+
+    <script>
+    // 初始化桐乡 3D 城市模型
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof THREE !== 'undefined' && typeof City3DRenderer !== 'undefined') {
+            new City3DRenderer('tongxiang-3d', 'assets/maps/tongxiang_osm_buildings.json', {
+                lineColor: 0x00d4ff,
+                lineOpacity: 0.5,
+                heightScale: 1.5
+            });
+        }
+    });
+    </script>
 </body>
 </html>
