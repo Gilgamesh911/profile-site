@@ -35,13 +35,13 @@ class TerrainExplorer {
         
         // 地形数据
         this.terrainSize = 200;
-        this.terrainHeight = 40;
+        this.terrainHeight = 55;
         this.cities = {
-            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [392, 327] },
-            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [256, 326] },
-            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [365, 309] },
-            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [339, 448] },
-            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [358, 191] }
+            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224] },
+            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224] },
+            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213] },
+            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300] },
+            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139] }
         };
         
         // 状态
@@ -98,7 +98,7 @@ class TerrainExplorer {
         // 加载高度图
         const loader = new THREE.TextureLoader();
         const heightMap = await new Promise((resolve, reject) => {
-            loader.load('assets/terrain/china_heightmap.png', resolve, undefined, reject);
+            loader.load('assets/terrain/chengdu_dem.png', resolve, undefined, reject);
         });
         
         // 读取高度数据
@@ -234,8 +234,8 @@ class TerrainExplorer {
             const marker = new THREE.Mesh(markerGeo, markerMat.clone());
             
             // 将像素坐标转换为 3D 坐标
-            const u = city.pixel[0] / 512;
-            const v = city.pixel[1] / 512;
+            const u = city.pixel[0] / 505;
+            const v = city.pixel[1] / 505;
             const x = (u - 0.5) * this.terrainSize;
             const z = (v - 0.5) * this.terrainSize;
             
@@ -271,8 +271,8 @@ class TerrainExplorer {
         ];
         
         const points = routePoints.map(city => {
-            const u = city.pixel[0] / 512;
-            const v = city.pixel[1] / 512;
+            const u = city.pixel[0] / 505;
+            const v = city.pixel[1] / 505;
             return new THREE.Vector3(
                 (u - 0.5) * this.terrainSize,
                 3,
