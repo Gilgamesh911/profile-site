@@ -36,11 +36,11 @@ class TerrainExplorer {
         this.terrainSize = 200;
         this.terrainHeight = 55;
         this.cities = {
-            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0 },
-            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1 },
-            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2 },
-            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3 },
-            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4 }
+            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 25 },
+            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 39 },
+            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 26 },
+            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 27 },
+            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 29 }
         };
         
         // ===== 状态 =====
@@ -251,7 +251,7 @@ class TerrainExplorer {
             const x = (u - 0.5) * this.terrainSize;
             const z = (v - 0.5) * this.terrainSize;
             
-            marker.position.set(x, 2, z);
+            marker.position.set(x, city.elevation + 3, z);
             marker.castShadow = true;
             group.add(marker);
             
@@ -265,7 +265,7 @@ class TerrainExplorer {
             });
             const ring = new THREE.Mesh(ringGeo, ringMat);
             ring.rotation.x = -Math.PI / 2;
-            ring.position.set(x, 0.5, z);
+            ring.position.set(x, city.elevation + 0.5, z);
             group.add(ring);
             
             // 标签（小牌子）
@@ -291,7 +291,7 @@ class TerrainExplorer {
                 side: THREE.DoubleSide,
             });
             const label = new THREE.Mesh(labelGeo, labelMat);
-            label.position.set(x, 8, z);
+            label.position.set(x, city.elevation + 10, z);
             label.userData = { cityKey: key, type: 'label' };
             group.add(label);
             
@@ -315,7 +315,7 @@ class TerrainExplorer {
             const v = city.pixel[1] / 505;
             return new THREE.Vector3(
                 (u - 0.5) * this.terrainSize,
-                3,
+                city.elevation + 5,
                 (v - 0.5) * this.terrainSize
             );
         });
@@ -494,17 +494,27 @@ class TerrainExplorer {
     updateTerrainCamera(progress) {
         if (!this.cameraPath) return;
         
-        const point = this.cameraPath.getPointAt(Math.min(progress, 0.99));
+        // 封面阶段（progress < 0.12）：固定俯瞰全图
+        if (progress < 0.12) {
+            const overviewPos = new THREE.Vector3(0, 140, 160);
+            this.camera.position.lerp(overviewPos, 0.05);
+            this.camera.lookAt(0, 10, 0);
+            return;
+        }
+        
+        // 正常浏览阶段：沿路径飞行
+        const pathProgress = (progress - 0.12) / 0.88; // 映射到 0-1
+        const point = this.cameraPath.getPointAt(Math.min(pathProgress, 0.99));
         
         const targetPos = new THREE.Vector3(
             point.x,
-            point.y + 30 + Math.sin(progress * Math.PI) * 20,
+            point.y + 30 + Math.sin(pathProgress * Math.PI) * 20,
             point.z + 40
         );
         
         this.camera.position.lerp(targetPos, 0.05);
         
-        const lookAtPoint = this.cameraPath.getPointAt(Math.min(progress + 0.05, 0.99));
+        const lookAtPoint = this.cameraPath.getPointAt(Math.min(pathProgress + 0.05, 0.99));
         this.camera.lookAt(lookAtPoint.x, lookAtPoint.y, lookAtPoint.z);
     }
     
