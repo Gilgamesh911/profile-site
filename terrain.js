@@ -114,8 +114,9 @@ class TerrainExplorer {
     
     // ===== 初始相机：俯瞰全图 =====
     setInitialCamera() {
-        // 从高处俯瞰整个地形
-        this.camera.position.set(0, 140, 160);
+        // 正俯视全图
+        this.camera.position.set(0, 220, 0);
+        this.camera.up.set(0, 0, -1);
         this.camera.lookAt(0, 0, 0);
     }
     
@@ -483,11 +484,12 @@ class TerrainExplorer {
     updateTerrainCamera(progress) {
         if (!this.cameraPath) return;
         
-        // 封面阶段（progress < 0.12）：固定俯瞰全图
+        // 封面阶段（progress < 0.12）：固定正俯视全图
         if (progress < 0.12) {
-            const overviewPos = new THREE.Vector3(0, 140, 160);
+            const overviewPos = new THREE.Vector3(0, 220, 0);
             this.camera.position.lerp(overviewPos, 0.05);
-            this.camera.lookAt(0, 10, 0);
+            this.camera.up.set(0, 0, -1);
+            this.camera.lookAt(0, 0, 0);
             return;
         }
         
