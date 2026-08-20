@@ -268,9 +268,6 @@ class TerrainExplorer {
             this.cities.hefei,
             this.cities.hongkong,
             this.cities.beijing,
-            this.cities.hefei,
-            this.cities.hongkong,
-            this.cities.beijing,
         ];
         
         const points = routePoints.map(city => {
