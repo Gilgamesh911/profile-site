@@ -664,14 +664,12 @@ class TerrainExplorer {
         }
     }
     
-    // ===== 鼠标交互：拖拽+缩放 =====
+    // ===== 鼠标交互：仅用于区分点击/拖拽，视角固定 =====
     setupMouseInteraction() {
         let previousMousePosition = { x: 0, y: 0 };
-        let dragStartTime = 0;
         
         this.canvas.addEventListener('mousedown', (e) => {
             this.isDragging = false;
-            dragStartTime = Date.now();
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
         
@@ -687,40 +685,8 @@ class TerrainExplorer {
                 this.isDragging = true;
             }
             
-            if (!this.isDragging) return;
-            
-            // 只有不在太空模式时才允许拖拽
-            if (this.scrollProgress > 0.82) return;
-            
-            const center = new THREE.Vector3(0, 10, 0);
-            const offset = this.camera.position.clone().sub(center);
-            
-            const angleY = dx * 0.005;
-            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), angleY);
-            
-            const currentHeight = offset.y;
-            const newHeight = Math.max(5, Math.min(120, currentHeight - dy * 0.3));
-            offset.y = newHeight;
-            
-            this.camera.position.copy(center.add(offset));
-            this.camera.lookAt(0, 5, 0);
-            
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
-        
-        // 滚轮缩放
-        this.canvas.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (this.scrollProgress > 0.82) return;
-            
-            const delta = e.deltaY * 0.1;
-            const direction = this.camera.position.clone().normalize();
-            const newPos = this.camera.position.clone().add(direction.multiplyScalar(delta));
-            const distance = newPos.length();
-            if (distance > 30 && distance < 300) {
-                this.camera.position.copy(newPos);
-            }
-        }, { passive: false });
     }
     
     // ===== 动画循环 =====
