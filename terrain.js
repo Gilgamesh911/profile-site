@@ -36,11 +36,11 @@ class TerrainExplorer {
         this.terrainSize = 200;
         this.terrainHeight = 55;
         this.cities = {
-            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 25 },
-            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 39 },
-            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 26 },
-            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 27 },
-            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 29 }
+            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 0 },
+            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 35 },
+            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 22 },
+            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 24 },
+            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 26 }
         };
         
         // ===== 状态 =====
@@ -139,24 +139,34 @@ class TerrainExplorer {
     async loadTerrain() {
         const loader = new THREE.TextureLoader();
         
-        // 同时加载高度图和纹理图
-        const [heightMap, albedoMap] = await Promise.all([
+        // 加载新高度图（mask * orig_height）和 PNG 纹理
+        const [heightMap, textureMap] = await Promise.all([
             new Promise((resolve, reject) => {
-                loader.load('assets/terrain/chengdu_dem.png', resolve, undefined, reject);
+                loader.load('assets/terrain/terrain_height.png', resolve, undefined, reject);
             }),
             new Promise((resolve, reject) => {
-                loader.load('assets/terrain/mixed_terrain.png', resolve, undefined, reject);
+                loader.load('assets/terrain/terrain_texture.png', resolve, undefined, reject);
             })
         ]);
         
-        const image = heightMap.image;
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0);
-        const imageData = ctx.getImageData(0, 0, image.width, image.height);
-        const pixels = imageData.data;
+        const heightImage = heightMap.image;
+        const texImage = textureMap.image;
+        
+        const hCanvas = document.createElement('canvas');
+        hCanvas.width = heightImage.width;
+        hCanvas.height = heightImage.height;
+        const hCtx = hCanvas.getContext('2d');
+        hCtx.drawImage(heightImage, 0, 0);
+        const hData = hCtx.getImageData(0, 0, heightImage.width, heightImage.height);
+        const hPixels = hData.data;
+        
+        const tCanvas = document.createElement('canvas');
+        tCanvas.width = texImage.width;
+        tCanvas.height = texImage.height;
+        const tCtx = tCanvas.getContext('2d');
+        tCtx.drawImage(texImage, 0, 0);
+        const tData = tCtx.getImageData(0, 0, texImage.width, texImage.height);
+        const tPixels = tData.data;
         
         const segments = 256;
         const geometry = new THREE.PlaneGeometry(
@@ -167,7 +177,6 @@ class TerrainExplorer {
         );
         
         const positions = geometry.attributes.position;
-        
         const colors = [];
         
         for (let i = 0; i < positions.count; i++) {
@@ -177,27 +186,30 @@ class TerrainExplorer {
             const u = (x / this.terrainSize + 0.5);
             const v = (-y / this.terrainSize + 0.5);
             
-            const px = Math.floor(u * (image.width - 1));
-            const py = Math.floor(v * (image.height - 1));
-            const idx = (py * image.width + px) * 4;
+            const px = Math.floor(u * (heightImage.width - 1));
+            const py = Math.floor(v * (heightImage.height - 1));
+            const idx = (py * heightImage.width + px) * 4;
             
-            const height = pixels[idx] / 255;
+            const height = hPixels[idx] / 255;
             
-            // 海洋区域平坦化
-            if (height < 0.08) {
+            // 海洋：mask=0，高度为0，平坦蓝色
+            if (height <= 0.001) {
                 positions.setZ(i, 0);
+                colors.push(0.18, 0.38, 0.55); // 海洋蓝
             } else {
+                // 陆地：按EXR起伏，使用PNG纹理颜色
                 positions.setZ(i, height * this.terrainHeight);
+                colors.push(
+                    tPixels[idx] / 255,
+                    tPixels[idx + 1] / 255,
+                    tPixels[idx + 2] / 255
+                );
             }
-            
-            const color = this.getTerrainColor(height);
-            colors.push(color.r, color.g, color.b);
         }
         
         geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         geometry.computeVertexNormals();
         
-        // 顶点着色：复古陆地 + 蓝色海洋
         const material = new THREE.MeshStandardMaterial({
             vertexColors: true,
             roughness: 0.9,
@@ -210,20 +222,6 @@ class TerrainExplorer {
         this.terrainMesh.receiveShadow = true;
         this.terrainMesh.castShadow = true;
         this.terrainGroup.add(this.terrainMesh);
-        
-        // 国界线 decal overlay（albedo 纹理淡显，只显示线条）
-        const borderGeo = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize);
-        const borderMat = new THREE.MeshBasicMaterial({
-            map: albedoMap,
-            transparent: true,
-            opacity: 0.15,
-            depthWrite: false,
-            blending: THREE.LightenBlending,
-        });
-        this.borderOverlay = new THREE.Mesh(borderGeo, borderMat);
-        this.borderOverlay.rotation.x = -Math.PI / 2;
-        this.borderOverlay.position.y = 0.3;
-        this.terrainGroup.add(this.borderOverlay);
         
         // 纸质纹理叠加
         this.addPaperTexture();
