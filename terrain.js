@@ -36,11 +36,11 @@ class TerrainExplorer {
         this.terrainSize = 200;
         this.terrainHeight = 1;
         this.cities = {
-            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 47 },
-            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 51 },
-            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 51 },
-            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 44 },
-            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 50 }
+            tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 4 },
+            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 4 },
+            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 4 },
+            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 4 },
+            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 4 }
         };
         
         // ===== 状态 =====
