@@ -34,7 +34,7 @@ class TerrainExplorer {
         
         // ===== 地形数据 =====
         this.terrainSize = 200;
-        this.terrainHeight = 55;
+        this.terrainHeight = 1;
         this.cities = {
             tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 47 },
             chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 51 },
