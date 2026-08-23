@@ -37,10 +37,10 @@ class TerrainExplorer {
         this.terrainHeight = 55;
         this.cities = {
             tongxiang: { lng: 120.56, lat: 30.63, name: '桐乡', pixel: [365, 224], elementId: 'tongxiang', idx: 0, elevation: 0 },
-            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 35 },
-            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 22 },
-            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 24 },
-            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 26 }
+            chengdu:   { lng: 104.06, lat: 30.67, name: '成都', pixel: [246, 224], elementId: 'chengdu', idx: 1, elevation: 38 },
+            hefei:     { lng: 117.23, lat: 31.82, name: '合肥', pixel: [341, 213], elementId: 'hefei', idx: 2, elevation: 25 },
+            hongkong:  { lng: 114.17, lat: 22.32, name: '香港', pixel: [319, 300], elementId: 'hongkong', idx: 3, elevation: 27 },
+            beijing:   { lng: 116.40, lat: 39.90, name: '北京', pixel: [335, 139], elementId: 'beijing', idx: 4, elevation: 29 }
         };
         
         // ===== 状态 =====
@@ -192,25 +192,13 @@ class TerrainExplorer {
             
             const height = hPixels[idx] / 255;
             
-            // 海洋：mask=0，海面低于海岸线（Z=-2），平坦蓝色
-            if (height <= 0.001) {
-                positions.setZ(i, -2);
-                colors.push(0.18, 0.38, 0.55); // 海洋蓝
-            } else {
-                // 陆地：按EXR起伏，海岸线从Z≈0开始向上，使用PNG纹理颜色
-                positions.setZ(i, height * this.terrainHeight);
-                colors.push(
-                    tPixels[idx] / 255,
-                    tPixels[idx + 1] / 255,
-                    tPixels[idx + 2] / 255
-                );
-            }
+            // 海洋：mask=0，Z=0 平整海面
             if (height <= 0.001) {
                 positions.setZ(i, 0);
                 colors.push(0.18, 0.38, 0.55); // 海洋蓝
             } else {
-                // 陆地：按EXR起伏，使用PNG纹理颜色
-                positions.setZ(i, height * this.terrainHeight);
+                // 陆地：Z=height*55+3，海岸线明显高出海面
+                positions.setZ(i, height * this.terrainHeight + 3);
                 colors.push(
                     tPixels[idx] / 255,
                     tPixels[idx + 1] / 255,
