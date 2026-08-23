@@ -192,7 +192,19 @@ class TerrainExplorer {
             
             const height = hPixels[idx] / 255;
             
-            // 海洋：mask=0，高度为0，平坦蓝色
+            // 海洋：mask=0，海面低于海岸线（Z=-2），平坦蓝色
+            if (height <= 0.001) {
+                positions.setZ(i, -2);
+                colors.push(0.18, 0.38, 0.55); // 海洋蓝
+            } else {
+                // 陆地：按EXR起伏，海岸线从Z≈0开始向上，使用PNG纹理颜色
+                positions.setZ(i, height * this.terrainHeight);
+                colors.push(
+                    tPixels[idx] / 255,
+                    tPixels[idx + 1] / 255,
+                    tPixels[idx + 2] / 255
+                );
+            }
             if (height <= 0.001) {
                 positions.setZ(i, 0);
                 colors.push(0.18, 0.38, 0.55); // 海洋蓝
