@@ -1,325 +1,210 @@
-// ===== 注册 GSAP 插件 =====
-gsap.registerPlugin(ScrollTrigger);
+// ===== 2D 卫星图滚动方案 =====
 
-// ===== 导航栏滚动效果 =====
-const navbar = document.getElementById('navbar');
-let lastScrollY = 0;
-
-window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
+document.addEventListener('DOMContentLoaded', () => {
+    gsap.registerPlugin(ScrollTrigger);
     
-    // 滚动时添加背景
-    if (scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
-    }
+    const satelliteImg = document.getElementById('satelliteImg');
+    const starsBg = document.getElementById('starsBg');
+    const coordsEl = document.getElementById('coords');
+    const scrollHint = document.getElementById('scrollHint');
+    const markers = document.querySelectorAll('.city-marker');
     
-    lastScrollY = scrollY;
-});
-
-// ===== 移动端菜单 =====
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('navMenu');
-
-hamburger.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
-});
-
-// 点击链接后关闭菜单
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-        navMenu.classList.remove('active');
-    });
-});
-
-// ===== 导航高亮 =====
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link');
-
-window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        if (scrollY >= sectionTop - 200) {
-            current = section.getAttribute('id');
+    // ===== 城市数据 =====
+    const cities = {
+        hero:      { lat: 30.63, lng: 120.56, scale: 1,   x: 0,    y: 0 },
+        tongxiang: { lat: 30.63, lng: 120.56, scale: 2.2, x: -15,  y: 0 },
+        chengdu:   { lat: 30.67, lng: 104.06, scale: 2.2, x: 15,   y: 0 },
+        hefei:     { lat: 31.82, lng: 117.23, scale: 2.2, x: -8,   y: 5 },
+        hongkong:  { lat: 22.32, lng: 114.17, scale: 2.5, x: -5,   y: -20 },
+        beijing:   { lat: 39.90, lng: 116.40, scale: 2.2, x: -10,  y: 15 },
+    };
+    
+    // ===== 主时间线：背景变换 =====
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: '.content-layer',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1.5,
+            onUpdate: (self) => {
+                updateScene(self.progress);
+            }
         }
     });
     
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-});
-
-// ===== 回到顶部 =====
-const backToTop = document.getElementById('backToTop');
-
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 500) {
-        backToTop.classList.add('visible');
-    } else {
-        backToTop.classList.remove('visible');
-    }
-});
-
-backToTop.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// ===== 滚动动画 =====
-// fade-up 动画
-gsap.utils.toArray('[data-animate="fade-up"]').forEach(el => {
-    gsap.from(el, {
-        scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        y: 40,
-        duration: 0.8,
-        ease: 'power2.out'
-    });
-});
-
-// fade-in 动画
-gsap.utils.toArray('[data-animate="fade-in"]').forEach(el => {
-    gsap.from(el, {
-        scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-        },
+    // 开场 → 桐乡：轻微放大
+    tl.to(satelliteImg, {
+        scale: 1.3,
+        x: '-5%',
+        duration: 1,
+        ease: 'none'
+    }, 0);
+    
+    // 桐乡 → 成都：向左平移到四川
+    tl.to(satelliteImg, {
+        scale: 1.8,
+        x: '15%',
+        y: '0%',
+        duration: 1,
+        ease: 'none'
+    }, 1);
+    
+    // 成都 → 合肥：向右平移
+    tl.to(satelliteImg, {
+        scale: 1.8,
+        x: '-8%',
+        y: '3%',
+        duration: 1,
+        ease: 'none'
+    }, 2);
+    
+    // 合肥 → 香港：向南平移
+    tl.to(satelliteImg, {
+        scale: 2.0,
+        x: '-5%',
+        y: '-18%',
+        duration: 1,
+        ease: 'none'
+    }, 3);
+    
+    // 香港 → 北京：向北平移
+    tl.to(satelliteImg, {
+        scale: 1.8,
+        x: '-8%',
+        y: '12%',
+        duration: 1,
+        ease: 'none'
+    }, 4);
+    
+    // 北京 → 星辰大海：放大淡出
+    tl.to(satelliteImg, {
+        scale: 2.5,
         opacity: 0,
         duration: 1,
-        ease: 'power2.out'
-    });
-});
-
-// slide-left 动画
-gsap.utils.toArray('[data-animate="slide-left"]').forEach(el => {
-    gsap.from(el, {
-        scrollTrigger: {
-            trigger: el,
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        x: -60,
-        duration: 0.8,
-        ease: 'power2.out'
-    });
-});
-
-// slide-right 动画
-gsap.utils.toArray('[data-animate="slide-right"]').forEach(el => {
-    gsap.from(el, {
-        scrollTrigger: {
-            trigger: el,
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        x: 60,
-        duration: 0.8,
-        ease: 'power2.out'
-    });
-});
-
-// ===== 地图路线动画 =====
-const journeyRoute = document.getElementById('journey-route');
-if (journeyRoute) {
-    const routeLength = journeyRoute.getTotalLength();
-    
-    gsap.set(journeyRoute, {
-        strokeDasharray: routeLength,
-        strokeDashoffset: routeLength,
-        opacity: 1
-    });
-    
-    gsap.to(journeyRoute, {
-        scrollTrigger: {
-            trigger: '#map-overview',
-            start: 'top 60%',
-            end: 'bottom 40%',
-            scrub: 1
-        },
-        strokeDashoffset: 0,
         ease: 'none'
-    });
-}
-
-// ===== 城市节点脉冲动画 =====
-gsap.utils.toArray('.city-node').forEach((node, i) => {
-    gsap.to(node, {
-        r: 8,
+    }, 5);
+    
+    // 星空淡入
+    tl.to(starsBg, {
         opacity: 1,
-        duration: 0.5,
-        delay: i * 0.2,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power1.inOut'
+        duration: 1,
+        ease: 'none'
+    }, 5.2);
+    
+    // ===== 城市卡片动画 =====
+    document.querySelectorAll('.city-card').forEach((card, i) => {
+        gsap.to(card, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+                trigger: card,
+                start: 'top 75%',
+                end: 'top 40%',
+                toggleActions: 'play none none reverse'
+            }
+        });
     });
-});
-
-// ===== 经历卡片依次入场 =====
-gsap.utils.toArray('.experience-card').forEach((card, i) => {
-    gsap.from(card, {
+    
+    // ===== 星辰大海标题动画 =====
+    gsap.to('#starsTitle', {
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: 'power2.out',
         scrollTrigger: {
-            trigger: card,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        y: 30,
-        duration: 0.6,
-        delay: i * 0.1,
+            trigger: '#stars',
+            start: 'top 60%',
+            toggleActions: 'play none none reverse'
+        }
+    });
+    
+    gsap.to('#starsSubtitle', {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        delay: 0.3,
+        ease: 'power2.out',
+        scrollTrigger: {
+            trigger: '#stars',
+            start: 'top 55%',
+            toggleActions: 'play none none reverse'
+        }
+    });
+    
+    // ===== 场景更新 =====
+    function updateScene(progress) {
+        // 坐标更新
+        let cityName = 'tongxiang';
+        if (progress < 0.12) cityName = 'tongxiang';
+        else if (progress < 0.30) cityName = 'chengdu';
+        else if (progress < 0.48) cityName = 'hefei';
+        else if (progress < 0.66) cityName = 'hongkong';
+        else if (progress < 0.84) cityName = 'beijing';
+        else cityName = 'stars';
+        
+        if (cityName !== 'stars' && cities[cityName]) {
+            const c = cities[cityName];
+            coordsEl.textContent = `${c.lat.toFixed(2)}°N, ${c.lng.toFixed(2)}°E`;
+        } else {
+            coordsEl.textContent = 'SPACE · 星辰大海';
+        }
+        
+        // 城市标注显示
+        markers.forEach(m => {
+            const markerCity = m.dataset.city;
+            const shouldShow = shouldShowMarker(progress, markerCity);
+            m.classList.toggle('visible', shouldShow);
+        });
+        
+        // 滚动提示隐藏
+        if (progress > 0.05) {
+            scrollHint.classList.add('hidden');
+        } else {
+            scrollHint.classList.remove('hidden');
+        }
+    }
+    
+    function shouldShowMarker(progress, city) {
+        const ranges = {
+            tongxiang: [0, 0.20],
+            chengdu:   [0.15, 0.38],
+            hefei:     [0.33, 0.56],
+            hongkong:  [0.51, 0.74],
+            beijing:   [0.69, 0.90],
+        };
+        const r = ranges[city];
+        if (!r) return false;
+        return progress >= r[0] && progress <= r[1];
+    }
+    
+    // ===== 开场卡片自动显示 =====
+    gsap.to('#hero .city-card', {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        delay: 0.5,
         ease: 'power2.out'
     });
-});
-
-// ===== 技能标签动画 =====
-gsap.utils.toArray('.skill-tag').forEach((tag, i) => {
-    gsap.from(tag, {
-        scrollTrigger: {
-            trigger: tag.parentElement,
-            start: 'top 85%',
-            toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        scale: 0.8,
-        duration: 0.4,
-        delay: i * 0.05,
-        ease: 'back.out(1.7)'
+    
+    // ===== 导航平滑滚动 =====
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                gsap.to(window, {
+                    duration: 1.5,
+                    scrollTo: { y: target, offsetY: 0 },
+                    ease: 'power2.inOut'
+                });
+            }
+        });
+    });
+    
+    // ===== 窗口 resize =====
+    window.addEventListener('resize', () => {
+        ScrollTrigger.refresh();
     });
 });
-
-// ===== 星辰大海星空背景 =====
-function createStars() {
-    const container = document.getElementById('stars-canvas');
-    if (!container) return;
-    
-    const starCount = 150;
-    
-    for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.style.cssText = `
-            position: absolute;
-            width: ${Math.random() * 3}px;
-            height: ${Math.random() * 3}px;
-            background: white;
-            border-radius: 50%;
-            top: ${Math.random() * 100}%;
-            left: ${Math.random() * 100}%;
-            opacity: ${Math.random() * 0.8 + 0.2};
-            animation: twinkle ${Math.random() * 3 + 2}s infinite ease-in-out;
-            animation-delay: ${Math.random() * 5}s;
-        `;
-        container.appendChild(star);
-    }
-}
-
-// 添加闪烁动画样式
-const starStyle = document.createElement('style');
-starStyle.textContent = `
-    @keyframes twinkle {
-        0%, 100% { opacity: 0.2; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.2); }
-    }
-    .stars-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 0;
-    }
-`;
-document.head.appendChild(starStyle);
-
-createStars();
-
-// ===== 星星区块额外效果 =====
-const starsSection = document.getElementById('stars');
-if (starsSection) {
-    // 流星效果
-    function createShootingStar() {
-        const shootingStar = document.createElement('div');
-        shootingStar.style.cssText = `
-            position: absolute;
-            width: 100px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-            top: ${Math.random() * 50}%;
-            left: -100px;
-            transform: rotate(-45deg);
-            animation: shoot 1s linear forwards;
-            z-index: 1;
-        `;
-        starsSection.appendChild(shootingStar);
-        
-        setTimeout(() => shootingStar.remove(), 1000);
-    }
-    
-    const shootStyle = document.createElement('style');
-    shootStyle.textContent = `
-        @keyframes shoot {
-            to { left: 120%; top: ${Math.random() * 30 + 50}%; }
-        }
-    `;
-    document.head.appendChild(shootStyle);
-    
-    // 每 3-8 秒出现一颗流星
-    setInterval(createShootingStar, Math.random() * 5000 + 3000);
-}
-
-// ===== 鼠标跟随光效（可选）=====
-document.addEventListener('mousemove', (e) => {
-    const cursor = document.querySelector('.cursor-glow');
-    if (!cursor) {
-        const newCursor = document.createElement('div');
-        newCursor.className = 'cursor-glow';
-        newCursor.style.cssText = `
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(0,212,255,0.03) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-            transform: translate(-50%, -50%);
-            transition: left 0.3s, top 0.3s;
-        `;
-        document.body.appendChild(newCursor);
-    }
-    
-    const glow = document.querySelector('.cursor-glow');
-    if (glow) {
-        glow.style.left = e.clientX + 'px';
-        glow.style.top = e.clientY + 'px';
-    }
-});
-
-// ===== 城市节点点击滚动到对应区块 =====
-document.querySelectorAll('.city-node').forEach(node => {
-    node.addEventListener('click', () => {
-        const city = node.getAttribute('data-city');
-        const target = document.getElementById(city);
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-});
-
-// ===== 预加载优化 =====
-window.addEventListener('load', () => {
-    document.body.classList.add('loaded');
-});
-
-console.log('🚀 徐振洋的个人网站已加载完成');
-console.log('🗺️ 空间之路：桐乡 → 成都 → 合肥 → 香港 → 北京');
-console.log('⭐ 理想：星辰大海');
