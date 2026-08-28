@@ -1,7 +1,27 @@
-// ===== 2D 卫星图滚动方案 - 多图切换 v2 =====
+// ===== 2D 卫星图滚动方案 - 多图切换 v3 (Lenis + Grain) =====
 
 document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
+    
+    // ===== Lenis 平滑滚动 =====
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+    });
+    
+    // Lenis 与 GSAP ScrollTrigger 同步
+    lenis.on('scroll', ScrollTrigger.update);
+    
+    gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+    });
+    
+    gsap.ticker.lagSmoothing(0);
     
     const satelliteImgs = document.querySelectorAll('.satellite-img');
     const starsBg = document.getElementById('starsBg');
@@ -125,13 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { opacity: 1, y: 0, duration: 1.2, delay: 0.4, ease: 'power2.out' }
     );
     
-    // ===== 导航平滑滚动 =====
+    // ===== 导航平滑滚动（使用 Lenis） =====
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const target = document.querySelector(link.getAttribute('href'));
             if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                lenis.scrollTo(target, { offset: 0, duration: 1.5 });
             }
         });
     });

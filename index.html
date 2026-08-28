@@ -17,7 +17,10 @@
             --forest: #4a6741;
         }
         
-        html { scroll-behavior: smooth; }
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
         
         body {
             font-family: 'Noto Serif SC', 'Playfair Display', Georgia, serif;
@@ -58,6 +61,19 @@
             inset: 0;
             box-shadow: inset 0 0 150px 60px rgba(0,0,0,0.4);
             pointer-events: none;
+        }
+        
+        /* ===== 胶片颗粒纹理叠加 ===== */
+        .grain-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 98;
+            pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+            mix-blend-mode: overlay;
         }
         
         /* ===== 星空结尾层 ===== */
@@ -291,6 +307,13 @@
     </style>
 </head>
 <body>
+    <!-- SVG 噪点滤镜（供胶片颗粒使用） -->
+    <svg style="position: absolute; width: 0; height: 0;">
+        <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/>
+        </filter>
+    </svg>
+
     <!-- 卫星图背景 -->
     <div class="satellite-bg">
         <img src="assets/satellite/china.jpg" class="satellite-img active" data-scene="hero" alt="中国全景">
@@ -300,6 +323,9 @@
         <img src="assets/satellite/hongkong.jpg" class="satellite-img" data-scene="hongkong" alt="香港">
         <img src="assets/satellite/beijing.jpg" class="satellite-img" data-scene="beijing" alt="北京">
     </div>
+    
+    <!-- 胶片颗粒纹理叠加 -->
+    <div class="grain-overlay"></div>
     
     <!-- 星空背景（结尾用） -->
     <div class="stars-bg" id="starsBg"></div>
@@ -434,6 +460,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
