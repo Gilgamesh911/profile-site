@@ -139,11 +139,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
     
-    // ===== 开场卡片自动显示 =====
-    gsap.fromTo('#hero .city-card',
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1.2, delay: 0.4, ease: 'power2.out' }
-    );
+    // ===== 开场卡片动画（由加载完成后触发） =====
+    function showHeroCard() {
+        gsap.fromTo('#hero .city-card',
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
+        );
+    }
+    
+    // ===== 加载动画 =====
+    const loader = document.getElementById('loader');
+    const loaderBar = document.getElementById('loaderBar');
+    const loaderPercent = document.getElementById('loaderPercent');
+    const loaderSteps = document.querySelectorAll('.loader-step');
+    
+    let loadProgress = 0;
+    const stepThresholds = [0, 20, 45, 70, 90];
+    const totalLoadTime = 2200; // 2.2秒总加载时间
+    const interval = 30;
+    
+    const loadTimer = setInterval(() => {
+        loadProgress += (100 / (totalLoadTime / interval));
+        if (loadProgress >= 100) {
+            loadProgress = 100;
+            clearInterval(loadTimer);
+            
+            // 加载完成：淡出加载层，显示开场卡片
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                showHeroCard();
+            }, 300);
+        }
+        
+        loaderBar.style.width = loadProgress + '%';
+        loaderPercent.textContent = Math.floor(loadProgress) + '%';
+        
+        // 更新步骤文字
+        loaderSteps.forEach((step, i) => {
+            if (loadProgress >= stepThresholds[i]) {
+                loaderSteps.forEach(s => s.classList.remove('active'));
+                step.classList.add('active');
+            }
+        });
+    }, interval);
     
     // ===== 导航平滑滚动（使用 Lenis） =====
     document.querySelectorAll('.nav-links a').forEach(link => {

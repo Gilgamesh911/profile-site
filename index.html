@@ -29,6 +29,85 @@
             line-height: 1.7;
         }
         
+        /* ===== 加载动画 ===== */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loader-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 4px;
+            margin-bottom: 3rem;
+        }
+        
+        .loader-steps {
+            position: relative;
+            text-align: center;
+            min-height: 1.5rem;
+            margin-bottom: 2rem;
+            width: 280px;
+        }
+        
+        .loader-step {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+        }
+        
+        .loader-step.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .loader-progress {
+            width: 200px;
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-progress-bar {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: var(--trail);
+            transition: width 0.2s ease;
+        }
+        
+        .loader-percent {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 1rem;
+            letter-spacing: 2px;
+        }
+        
         /* ===== 卫星图背景 ===== */
         .satellite-bg {
             position: fixed;
@@ -307,6 +386,23 @@
     </style>
 </head>
 <body>
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="loader-brand">徐振洋</div>
+        <div class="loader-steps" id="loaderSteps">
+            <div class="loader-step active" data-step="0">正在连接遥感卫星...</div>
+            <div class="loader-step" data-step="1">接收地形数据...</div>
+            <div class="loader-step" data-step="2">解析城市肌理...</div>
+            <div class="loader-step" data-step="3">校准空间坐标...</div>
+            <div class="loader-step" data-step="4">准备就绪</div>
+        </div>
+        <div class="loader-progress">
+            <div class="loader-progress-bar" id="loaderBar"></div>
+        </div>
+        <div class="loader-percent" id="loaderPercent">0%</div>
+    </div>
+
+    <!-- SVG 噪点滤镜（供胶片颗粒使用） -->
     <!-- SVG 噪点滤镜（供胶片颗粒使用） -->
     <svg style="position: absolute; width: 0; height: 0;">
         <filter id="noiseFilter">
