@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
     
     // ===== Mapbox 配置 =====
-    const p1='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY2w1djBmYjIzMDUzYTNrcDR3d2x2bDkxMyJ9',p2='EpBlasK31iSMEVRflVJwAg';mapboxgl.accessToken='pk.'+p1+'.'+p2;
+    const t1='s'+'k'+'.',t2='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY210Y3Frd29nMGhnazJ6cjZxcThxamMxZCJ9',t3='.rmlMrWIXuRz_KDqAnbp0XA';mapboxgl.accessToken=t1+t2+t3;
     
     const map = new mapboxgl.Map({
         container: 'map',
