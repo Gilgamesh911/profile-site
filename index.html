@@ -108,6 +108,68 @@
             letter-spacing: 2px;
         }
         
+        /* ===== 城市图钉 ===== */
+        .city-pins {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        .pin-group {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        
+        .pin-group.active {
+            opacity: 1;
+        }
+        
+        .city-pin {
+            position: absolute;
+            pointer-events: auto;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+        }
+        
+        .pin-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--trail);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 0 0 0 rgba(193,120,23,0.4);
+            animation: pinPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pinPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(193,120,23,0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(193,120,23,0); }
+        }
+        
+        .pin-label {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #fff;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+            white-space: nowrap;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        
+        .city-pin:hover .pin-dot {
+            background: #fff;
+            animation: none;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+        }
+        
         /* ===== 卫星图背景 ===== */
         .satellite-bg {
             position: fixed;
@@ -418,6 +480,64 @@
         <img src="assets/satellite/hefei.jpg" class="satellite-img" data-scene="hefei" alt="合肥" loading="lazy">
         <img src="assets/satellite/hongkong.jpg" class="satellite-img" data-scene="hongkong" alt="香港" loading="lazy">
         <img src="assets/satellite/beijing.jpg" class="satellite-img" data-scene="beijing" alt="北京" loading="lazy">
+    </div>
+    
+    <!-- 城市图钉标注 -->
+    <div class="city-pins" id="cityPins">
+        <!-- Hero 场景：中国地图上的所有城市 -->
+        <div class="pin-group active" data-scene="hero">
+            <div class="city-pin" style="left: 74%; top: 52%;" data-target="tongxiang">
+                <div class="pin-dot"></div>
+                <div class="pin-label">桐乡</div>
+            </div>
+            <div class="city-pin" style="left: 40%; top: 56%;" data-target="chengdu">
+                <div class="pin-dot"></div>
+                <div class="pin-label">成都</div>
+            </div>
+            <div class="city-pin" style="left: 70%; top: 48%;" data-target="hefei">
+                <div class="pin-dot"></div>
+                <div class="pin-label">合肥</div>
+            </div>
+            <div class="city-pin" style="left: 68%; top: 74%;" data-target="hongkong">
+                <div class="pin-dot"></div>
+                <div class="pin-label">香港</div>
+            </div>
+            <div class="city-pin" style="left: 68%; top: 30%;" data-target="beijing">
+                <div class="pin-dot"></div>
+                <div class="pin-label">北京</div>
+            </div>
+        </div>
+        <!-- 各城市场景：中心点 -->
+        <div class="pin-group" data-scene="tongxiang">
+            <div class="city-pin" style="left: 50%; top: 50%;" data-target="tongxiang">
+                <div class="pin-dot"></div>
+                <div class="pin-label">桐乡</div>
+            </div>
+        </div>
+        <div class="pin-group" data-scene="chengdu">
+            <div class="city-pin" style="left: 50%; top: 50%;" data-target="chengdu">
+                <div class="pin-dot"></div>
+                <div class="pin-label">成都</div>
+            </div>
+        </div>
+        <div class="pin-group" data-scene="hefei">
+            <div class="city-pin" style="left: 50%; top: 50%;" data-target="hefei">
+                <div class="pin-dot"></div>
+                <div class="pin-label">合肥</div>
+            </div>
+        </div>
+        <div class="pin-group" data-scene="hongkong">
+            <div class="city-pin" style="left: 50%; top: 50%;" data-target="hongkong">
+                <div class="pin-dot"></div>
+                <div class="pin-label">香港</div>
+            </div>
+        </div>
+        <div class="pin-group" data-scene="beijing">
+            <div class="city-pin" style="left: 50%; top: 50%;" data-target="beijing">
+                <div class="pin-dot"></div>
+                <div class="pin-label">北京</div>
+            </div>
+        </div>
     </div>
     
     <!-- 胶片颗粒纹理叠加 -->

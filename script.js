@@ -56,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ===== 场景切换器 =====
+    const pinGroups = document.querySelectorAll('.pin-group');
+    
     function setScene(scene) {
         if (scene === 'stars') {
             showStars();
@@ -64,6 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
             hideStars();
         }
         coordsEl.textContent = cityData[scene].label;
+        
+        // 切换图钉显示
+        pinGroups.forEach(g => {
+            g.classList.toggle('active', g.dataset.scene === scene);
+        });
     }
     
     // ===== 核心：用单 ScrollTrigger 监听整体进度，精确分段 =====
@@ -189,6 +196,17 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const target = document.querySelector(link.getAttribute('href'));
             if (target) {
+                lenis.scrollTo(target, { offset: 0, duration: 1.5 });
+            }
+        });
+    });
+    
+    // ===== 图钉点击跳转 =====
+    document.querySelectorAll('.city-pin').forEach(pin => {
+        pin.addEventListener('click', () => {
+            const targetId = pin.dataset.target;
+            const target = document.getElementById(targetId);
+            if (target && lenis) {
                 lenis.scrollTo(target, { offset: 0, duration: 1.5 });
             }
         });
