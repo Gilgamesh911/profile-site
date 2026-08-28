@@ -39,12 +39,16 @@
         .satellite-img {
             position: absolute;
             top: 50%; left: 50%;
-            width: 120vw;
-            height: 120vh;
+            width: 100vw;
+            height: 100vh;
             object-fit: cover;
             transform: translate(-50%, -50%);
-            will-change: transform;
-            filter: brightness(0.9) contrast(1.05);
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        
+        .satellite-img.active {
+            opacity: 1;
         }
         
         /* 暗角 */
@@ -54,64 +58,6 @@
             inset: 0;
             box-shadow: inset 0 0 150px 60px rgba(0,0,0,0.4);
             pointer-events: none;
-        }
-        
-        /* ===== 城市标注层 ===== */
-        .city-markers {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 5;
-            pointer-events: none;
-        }
-        
-        .city-marker {
-            position: absolute;
-            transform: translate(-50%, -100%);
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-        
-        .city-marker.visible {
-            opacity: 1;
-        }
-        
-        .marker-pin {
-            width: 16px;
-            height: 16px;
-            background: var(--trail);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(193,120,23,0.6);
-            animation: markerPulse 2s ease-in-out infinite;
-        }
-        
-        .marker-label {
-            position: absolute;
-            top: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 0.75rem;
-            color: #fff;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-            letter-spacing: 2px;
-            background: rgba(0,0,0,0.4);
-            padding: 2px 8px;
-            border-radius: 2px;
-        }
-        
-        .marker-line {
-            width: 1px;
-            height: 20px;
-            background: linear-gradient(to bottom, var(--trail), transparent);
-            margin: 0 auto;
-        }
-        
-        @keyframes markerPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(193,120,23,0.6); }
-            50% { box-shadow: 0 0 30px rgba(193,120,23,0.9); }
         }
         
         /* ===== 星空结尾层 ===== */
@@ -124,6 +70,11 @@
             background: #050a14;
             opacity: 0;
             pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+        
+        .stars-bg.active {
+            opacity: 1;
         }
         
         /* ===== 导航 ===== */
@@ -336,47 +287,22 @@
             .city-card { padding: 2rem; max-width: 90vw; }
             .city-title { font-size: 1.8rem; }
             .footer-title { font-size: 3rem; }
-            .satellite-img { width: 150vw; height: 150vh; }
         }
     </style>
 </head>
 <body>
     <!-- 卫星图背景 -->
     <div class="satellite-bg">
-        <img src="assets/terrain/terrain_texture.png" class="satellite-img" id="satelliteImg" alt="地形图">
+        <img src="assets/satellite/china.jpg" class="satellite-img active" data-scene="hero" alt="中国全景">
+        <img src="assets/satellite/tongxiang.jpg" class="satellite-img" data-scene="tongxiang" alt="桐乡">
+        <img src="assets/satellite/chengdu.jpg" class="satellite-img" data-scene="chengdu" alt="成都">
+        <img src="assets/satellite/hefei.jpg" class="satellite-img" data-scene="hefei" alt="合肥">
+        <img src="assets/satellite/hongkong.jpg" class="satellite-img" data-scene="hongkong" alt="香港">
+        <img src="assets/satellite/beijing.jpg" class="satellite-img" data-scene="beijing" alt="北京">
     </div>
     
     <!-- 星空背景（结尾用） -->
     <div class="stars-bg" id="starsBg"></div>
-    
-    <!-- 城市标注 -->
-    <div class="city-markers" id="cityMarkers">
-        <div class="city-marker" data-city="tongxiang" style="left: 72.3%; top: 44.4%;">
-            <div class="marker-label">桐乡</div>
-            <div class="marker-pin"></div>
-            <div class="marker-line"></div>
-        </div>
-        <div class="city-marker" data-city="chengdu" style="left: 48.7%; top: 44.4%;">
-            <div class="marker-label">成都</div>
-            <div class="marker-pin"></div>
-            <div class="marker-line"></div>
-        </div>
-        <div class="city-marker" data-city="hefei" style="left: 67.5%; top: 42.2%;">
-            <div class="marker-label">合肥</div>
-            <div class="marker-pin"></div>
-            <div class="marker-line"></div>
-        </div>
-        <div class="city-marker" data-city="hongkong" style="left: 63.2%; top: 59.4%;">
-            <div class="marker-label">香港</div>
-            <div class="marker-pin"></div>
-            <div class="marker-line"></div>
-        </div>
-        <div class="city-marker" data-city="beijing" style="left: 66.3%; top: 27.5%;">
-            <div class="marker-label">北京</div>
-            <div class="marker-pin"></div>
-            <div class="marker-line"></div>
-        </div>
-    </div>
     
     <!-- 导航 -->
     <nav class="nav">
