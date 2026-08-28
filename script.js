@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
     
     // ===== Mapbox 配置 =====
-    const t1='s'+'k'+'.',t2='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY210Y3Frd29nMGhnazJ6cjZxcThxamMxZCJ9',t3='.rmlMrWIXuRz_KDqAnbp0XA';mapboxgl.accessToken=t1+t2+t3;
+    const t1='s'+'k'+'.',t2='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY210Y3Frd29nMGhnazJ6cjZxcThxamMxZCJ9',t3='.rmlMrWIXuRz_KDqAnbp0XA';
+    mapboxgl.accessToken=t1+t2+t3;
     
     const map = new mapboxgl.Map({
         container: 'map',
@@ -18,17 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // 3D 地形
+    let terrainReady = false;
     map.on('load', () => {
-        map.addSource('mapbox-dem', {
-            type: 'raster-dem',
-            url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            tileSize: 512,
-            maxzoom: 14
-        });
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-        
-        // 地形加载后启动加载动画完成流程
-        onMapReady();
+        try {
+            map.addSource('mapbox-dem', {
+                type: 'raster-dem',
+                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                tileSize: 512,
+                maxzoom: 14
+            });
+            map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+            terrainReady = true;
+        } catch (e) {
+            console.warn('Terrain load failed:', e);
+        }
+    });
+    
+    map.on('error', (e) => {
+        console.warn('Mapbox error:', e);
     });
     
     // ===== Lenis 平滑滚动 =====
@@ -60,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
     
-    // 插值函数
     function lerp(a, b, t) { return a + (b - a) * t; }
     
     // ===== 滚动驱动相机 =====
@@ -88,60 +95,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 map.jumpTo({ center, zoom, pitch, bearing });
                 
-                // 更新坐标
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
-                
-                // 滚动提示
                 scrollHint.classList.toggle('hidden', progress > 0.02);
             }
         });
     }
     
     // ===== 城市卡片淡入动画 =====
-    function setupCardAnimations() {
-        gsap.utils.toArray('.city-card').forEach(card => {
-            gsap.fromTo(card, 
-                { opacity: 0, y: 50 },
-                {
-                    opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
-                    scrollTrigger: {
-                        trigger: card,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse'
-                    }
+    gsap.utils.toArray('.city-card').forEach(card => {
+        gsap.fromTo(card, 
+            { opacity: 0, y: 50 },
+            {
+                opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
                 }
-            );
-        });
-    }
+            }
+        );
+    });
     
     // ===== 星辰大海标题动画 =====
-    function setupStarsAnimation() {
-        gsap.fromTo('#starsTitle',
-            { opacity: 0, scale: 0.9 },
-            { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out',
-              scrollTrigger: { trigger: '#stars', start: 'top 70%', toggleActions: 'play none none reverse' }
-            }
-        );
-        gsap.fromTo('#starsSubtitle',
-            { opacity: 0, y: 30 },
-            { opacity: 1, y: 0, duration: 1, ease: 'power2.out',
-              scrollTrigger: { trigger: '#stars', start: 'top 60%', toggleActions: 'play none none reverse' }
-            }
-        );
-    }
+    gsap.fromTo('#starsTitle',
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out',
+          scrollTrigger: { trigger: '#stars', start: 'top 70%', toggleActions: 'play none none reverse' }
+        }
+    );
+    gsap.fromTo('#starsSubtitle',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power2.out',
+          scrollTrigger: { trigger: '#stars', start: 'top 60%', toggleActions: 'play none none reverse' }
+        }
+    );
     
     // ===== 导航平滑滚动 =====
-    function setupNav() {
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = document.querySelector(link.getAttribute('href'));
-                if (target) lenis.scrollTo(target, { offset: 0, duration: 1.5 });
-            });
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) lenis.scrollTo(target, { offset: 0, duration: 1.5 });
         });
-    }
+    });
     
-    // ===== 加载动画 =====
+    // ===== 加载动画（独立运行，不依赖地图） =====
     const loader = document.getElementById('loader');
     const loaderBar = document.getElementById('loaderBar');
     const loaderPercent = document.getElementById('loaderPercent');
@@ -149,50 +147,36 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let loadProgress = 0;
     const stepThresholds = [0, 20, 45, 70, 90];
+    const totalLoadTime = 2200;
+    const interval = 30;
     
-    function runLoader(onComplete) {
-        const totalLoadTime = 2200;
-        const interval = 30;
+    const timer = setInterval(() => {
+        loadProgress += (100 / (totalLoadTime / interval));
+        if (loadProgress >= 100) {
+            loadProgress = 100;
+            clearInterval(timer);
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                // 显示开场卡片
+                gsap.fromTo('#hero .city-card',
+                    { opacity: 0, y: 40 },
+                    { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
+                );
+                // 启动滚动相机
+                setupScrollCamera();
+            }, 300);
+        }
         
-        const timer = setInterval(() => {
-            loadProgress += (100 / (totalLoadTime / interval));
-            if (loadProgress >= 100) {
-                loadProgress = 100;
-                clearInterval(timer);
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    onComplete();
-                }, 300);
+        loaderBar.style.width = loadProgress + '%';
+        loaderPercent.textContent = Math.floor(loadProgress) + '%';
+        
+        loaderSteps.forEach((step, i) => {
+            if (loadProgress >= stepThresholds[i]) {
+                loaderSteps.forEach(s => s.classList.remove('active'));
+                step.classList.add('active');
             }
-            
-            loaderBar.style.width = loadProgress + '%';
-            loaderPercent.textContent = Math.floor(loadProgress) + '%';
-            
-            loaderSteps.forEach((step, i) => {
-                if (loadProgress >= stepThresholds[i]) {
-                    loaderSteps.forEach(s => s.classList.remove('active'));
-                    step.classList.add('active');
-                }
-            });
-        }, interval);
-    }
-    
-    // ===== 地图就绪后启动 =====
-    function onMapReady() {
-        runLoader(() => {
-            // 加载完成：显示开场卡片
-            gsap.fromTo('#hero .city-card',
-                { opacity: 0, y: 40 },
-                { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
-            );
-            // 启动滚动相机
-            setupScrollCamera();
         });
-        
-        setupCardAnimations();
-        setupStarsAnimation();
-        setupNav();
-    }
+    }, interval);
     
     // ===== 窗口 resize 刷新 =====
     let resizeTimer;
