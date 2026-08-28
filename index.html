@@ -6,6 +6,7 @@
     <title>徐振洋 | 空间之旅</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -27,6 +28,20 @@
             color: var(--ink);
             overflow-x: hidden;
             line-height: 1.7;
+        }
+        
+        /* ===== Mapbox 地图 ===== */
+        #map {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+        
+        /* 隐藏 Mapbox logo 和控件 */
+        .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib, .mapboxgl-ctrl-bottom-right {
+            display: none !important;
         }
         
         /* ===== 加载动画 ===== */
@@ -108,102 +123,6 @@
             letter-spacing: 2px;
         }
         
-        /* ===== 城市图钉 ===== */
-        .city-pins {
-            position: fixed;
-            inset: 0;
-            z-index: 5;
-            pointer-events: none;
-        }
-        
-        .pin-group {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-        
-        .pin-group.active {
-            opacity: 1;
-        }
-        
-        .city-pin {
-            position: absolute;
-            pointer-events: auto;
-            cursor: pointer;
-            transform: translate(-50%, -50%);
-        }
-        
-        .pin-dot {
-            width: 10px;
-            height: 10px;
-            background: var(--trail);
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 0 0 0 rgba(193,120,23,0.4);
-            animation: pinPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pinPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(193,120,23,0.5); }
-            50% { box-shadow: 0 0 0 12px rgba(193,120,23,0); }
-        }
-        
-        .pin-label {
-            position: absolute;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            color: #fff;
-            text-shadow: 0 1px 6px rgba(0,0,0,0.9);
-            white-space: nowrap;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            opacity: 0.85;
-            pointer-events: none;
-        }
-        
-        .city-pin:hover .pin-dot {
-            background: #fff;
-            animation: none;
-            box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
-        }
-        
-        /* ===== 卫星图背景 ===== */
-        .satellite-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            overflow: hidden;
-        }
-        
-        .satellite-img {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            transition: opacity 1.2s ease;
-        }
-        
-        .satellite-img.active {
-            opacity: 1;
-        }
-        
-        /* 暗角 */
-        .satellite-bg::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            box-shadow: inset 0 0 150px 60px rgba(0,0,0,0.4);
-            pointer-events: none;
-        }
-        
         /* ===== 胶片颗粒纹理叠加 ===== */
         .grain-overlay {
             position: fixed;
@@ -215,23 +134,6 @@
             background-repeat: repeat;
             background-size: 256px 256px;
             mix-blend-mode: overlay;
-        }
-        
-        /* ===== 星空结尾层 ===== */
-        .stars-bg {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            background: #050a14;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 1.5s ease;
-        }
-        
-        .stars-bg.active {
-            opacity: 1;
         }
         
         /* ===== 导航 ===== */
@@ -464,87 +366,11 @@
         <div class="loader-percent" id="loaderPercent">0%</div>
     </div>
 
-    <!-- SVG 噪点滤镜（供胶片颗粒使用） -->
-    <!-- SVG 噪点滤镜（供胶片颗粒使用） -->
-    <svg style="position: absolute; width: 0; height: 0;">
-        <filter id="noiseFilter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/>
-        </filter>
-    </svg>
-
-    <!-- 卫星图背景 -->
-    <div class="satellite-bg">
-        <img src="assets/satellite/china.jpg" class="satellite-img active" data-scene="hero" alt="中国全景" fetchpriority="high">
-        <img src="assets/satellite/tongxiang.jpg" class="satellite-img" data-scene="tongxiang" alt="桐乡" loading="lazy">
-        <img src="assets/satellite/chengdu.jpg" class="satellite-img" data-scene="chengdu" alt="成都" loading="lazy">
-        <img src="assets/satellite/hefei.jpg" class="satellite-img" data-scene="hefei" alt="合肥" loading="lazy">
-        <img src="assets/satellite/hongkong.jpg" class="satellite-img" data-scene="hongkong" alt="香港" loading="lazy">
-        <img src="assets/satellite/beijing.jpg" class="satellite-img" data-scene="beijing" alt="北京" loading="lazy">
-    </div>
-    
-    <!-- 城市图钉标注 -->
-    <div class="city-pins" id="cityPins">
-        <!-- Hero 场景：中国地图上的所有城市 -->
-        <div class="pin-group active" data-scene="hero">
-            <div class="city-pin" style="left: 74%; top: 52%;" data-target="tongxiang">
-                <div class="pin-dot"></div>
-                <div class="pin-label">桐乡</div>
-            </div>
-            <div class="city-pin" style="left: 40%; top: 56%;" data-target="chengdu">
-                <div class="pin-dot"></div>
-                <div class="pin-label">成都</div>
-            </div>
-            <div class="city-pin" style="left: 70%; top: 48%;" data-target="hefei">
-                <div class="pin-dot"></div>
-                <div class="pin-label">合肥</div>
-            </div>
-            <div class="city-pin" style="left: 68%; top: 74%;" data-target="hongkong">
-                <div class="pin-dot"></div>
-                <div class="pin-label">香港</div>
-            </div>
-            <div class="city-pin" style="left: 68%; top: 30%;" data-target="beijing">
-                <div class="pin-dot"></div>
-                <div class="pin-label">北京</div>
-            </div>
-        </div>
-        <!-- 各城市场景：中心点 -->
-        <div class="pin-group" data-scene="tongxiang">
-            <div class="city-pin" style="left: 50%; top: 50%;" data-target="tongxiang">
-                <div class="pin-dot"></div>
-                <div class="pin-label">桐乡</div>
-            </div>
-        </div>
-        <div class="pin-group" data-scene="chengdu">
-            <div class="city-pin" style="left: 50%; top: 50%;" data-target="chengdu">
-                <div class="pin-dot"></div>
-                <div class="pin-label">成都</div>
-            </div>
-        </div>
-        <div class="pin-group" data-scene="hefei">
-            <div class="city-pin" style="left: 50%; top: 50%;" data-target="hefei">
-                <div class="pin-dot"></div>
-                <div class="pin-label">合肥</div>
-            </div>
-        </div>
-        <div class="pin-group" data-scene="hongkong">
-            <div class="city-pin" style="left: 50%; top: 50%;" data-target="hongkong">
-                <div class="pin-dot"></div>
-                <div class="pin-label">香港</div>
-            </div>
-        </div>
-        <div class="pin-group" data-scene="beijing">
-            <div class="city-pin" style="left: 50%; top: 50%;" data-target="beijing">
-                <div class="pin-dot"></div>
-                <div class="pin-label">北京</div>
-            </div>
-        </div>
-    </div>
+    <!-- Mapbox 地图 -->
+    <div id="map"></div>
     
     <!-- 胶片颗粒纹理叠加 -->
     <div class="grain-overlay"></div>
-    
-    <!-- 星空背景（结尾用） -->
-    <div class="stars-bg" id="starsBg"></div>
     
     <!-- 导航 -->
     <nav class="nav">
@@ -677,6 +503,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
