@@ -1,4 +1,4 @@
-// ===== 2D 卫星图滚动方案 - 多图切换 =====
+// ===== 2D 卫星图滚动方案 - 多图切换 v2 =====
 
 document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ===== 城市数据 =====
     const cityData = {
-        hero:      { lat: 30.63, lng: 120.56, label: '30.63°N, 120.56°E' },
-        tongxiang: { lat: 30.63, lng: 120.56, label: '30.63°N, 120.56°E' },
-        chengdu:   { lat: 30.67, lng: 104.06, label: '30.67°N, 104.06°E' },
-        hefei:     { lat: 31.82, lng: 117.23, label: '31.82°N, 117.23°E' },
-        hongkong:  { lat: 22.32, lng: 114.17, label: '22.32°N, 114.17°E' },
-        beijing:   { lat: 39.90, lng: 116.40, label: '39.90°N, 116.40°E' },
+        hero:      { label: '30.63°N, 120.56°E' },
+        tongxiang: { label: '30.63°N, 120.56°E' },
+        chengdu:   { label: '30.67°N, 104.06°E' },
+        hefei:     { label: '31.82°N, 117.23°E' },
+        hongkong:  { label: '22.32°N, 114.17°E' },
+        beijing:   { label: '39.90°N, 116.40°E' },
         stars:     { label: 'SPACE · 星辰大海' }
     };
     
@@ -35,49 +35,40 @@ document.addEventListener('DOMContentLoaded', () => {
         starsBg.classList.remove('active');
     }
     
-    // ===== 为每个城市 section 创建 ScrollTrigger =====
-    const sections = [
-        { id: 'hero',      scene: 'hero' },
-        { id: 'tongxiang', scene: 'tongxiang' },
-        { id: 'chengdu',   scene: 'chengdu' },
-        { id: 'hefei',     scene: 'hefei' },
-        { id: 'hongkong',  scene: 'hongkong' },
-        { id: 'beijing',   scene: 'beijing' },
-    ];
-    
-    sections.forEach(({ id, scene }) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        
-        ScrollTrigger.create({
-            trigger: el,
-            start: 'top 60%',
-            end: 'bottom 40%',
-            onToggle: (self) => {
-                if (self.isActive) {
-                    activateImage(scene);
-                    hideStars();
-                    coordsEl.textContent = cityData[scene].label;
-                }
-            }
-        });
-    });
-    
-    // ===== 星辰大海 section =====
-    const starsSection = document.getElementById('stars');
-    if (starsSection) {
-        ScrollTrigger.create({
-            trigger: starsSection,
-            start: 'top 60%',
-            end: 'bottom bottom',
-            onToggle: (self) => {
-                if (self.isActive) {
-                    showStars();
-                    coordsEl.textContent = cityData.stars.label;
-                }
-            }
-        });
+    // ===== 场景切换器 =====
+    function setScene(scene) {
+        if (scene === 'stars') {
+            showStars();
+        } else {
+            activateImage(scene);
+            hideStars();
+        }
+        coordsEl.textContent = cityData[scene].label;
     }
+    
+    // ===== 核心：用单 ScrollTrigger 监听整体进度，精确分段 =====
+    const sectionIds = ['hero', 'tongxiang', 'chengdu', 'hefei', 'hongkong', 'beijing', 'stars'];
+    const sectionEls = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+    
+    ScrollTrigger.create({
+        trigger: '.content-layer',
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: (self) => {
+            const progress = self.progress;
+            const total = sectionEls.length;
+            const sectionIndex = Math.min(Math.floor(progress * total), total - 1);
+            const currentScene = sectionIds[sectionIndex];
+            setScene(currentScene);
+            
+            // 滚动提示
+            if (progress > 0.02) {
+                scrollHint.classList.add('hidden');
+            } else {
+                scrollHint.classList.remove('hidden');
+            }
+        }
+    });
     
     // ===== 城市卡片淡入动画 =====
     gsap.utils.toArray('.city-card').forEach(card => {
@@ -90,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ease: 'power2.out',
                 scrollTrigger: {
                     trigger: card,
-                    start: 'top 82%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                 }
             }
@@ -107,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ease: 'power2.out',
             scrollTrigger: {
                 trigger: '#stars',
-                start: 'top 65%',
+                start: 'top 70%',
                 toggleActions: 'play none none reverse'
             }
         }
@@ -122,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ease: 'power2.out',
             scrollTrigger: {
                 trigger: '#stars',
-                start: 'top 55%',
+                start: 'top 60%',
                 toggleActions: 'play none none reverse'
             }
         }
@@ -133,18 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { opacity: 0, y: 40 },
         { opacity: 1, y: 0, duration: 1.2, delay: 0.4, ease: 'power2.out' }
     );
-    
-    // ===== 滚动提示：滚动超过 100px 后隐藏 =====
-    let hintHidden = false;
-    window.addEventListener('scroll', () => {
-        if (!hintHidden && window.scrollY > 100) {
-            hintHidden = true;
-            scrollHint.classList.add('hidden');
-        } else if (hintHidden && window.scrollY <= 50) {
-            hintHidden = false;
-            scrollHint.classList.remove('hidden');
-        }
-    }, { passive: true });
     
     // ===== 导航平滑滚动 =====
     document.querySelectorAll('.nav-links a').forEach(link => {
