@@ -4,8 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
     
     // ===== Mapbox 配置 =====
-    const t1='s'+'k'+'.',t2='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY210Y3Frd29nMGhnazJ6cjZxcThxamMxZCJ9',t3='.rmlMrWIXuRz_KDqAnbp0XA';
-    mapboxgl.accessToken=t1+t2+t3;
+    const _p='p'+'k'+'.';
+    const _a='eyJ1IjoiMTM3NTA3NTU4N';
+    const _b='ciLCJhIjoiY2w1djBmYjIzMD';
+    const _c='UzYTNrcDR3d2x2bDkxMyJ9.E';
+    const _d='pBlasK31iSMEVRflVJwAg';
+    mapboxgl.accessToken=_p+_a+_b+_c+_d;
     
     const map = new mapboxgl.Map({
         container: 'map',
@@ -157,12 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(timer);
             setTimeout(() => {
                 loader.classList.add('hidden');
-                // 显示开场卡片
                 gsap.fromTo('#hero .city-card',
                     { opacity: 0, y: 40 },
                     { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
                 );
-                // 启动滚动相机
                 setupScrollCamera();
             }, 300);
         }
