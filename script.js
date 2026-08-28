@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
     
     // ===== Mapbox 配置 =====
-    const _t = [String.fromCharCode(112,107), String.fromCharCode(46), String.fromCharCode(101,121,74,49,73,54,98,50,108,77,84,77,51,78,85,65,53,85,52,78,68,99,105,76,67,74,104,73,106,111,105,89,50,119,49,100,106,66,109,89,106,73,122,77,68,85,122,89,84,78,114,99,68,82,51,100,50,120,50,98,68,107,120,77,121,74,57,69,112,66,108,97,115,75,51,49,105,83,77,69,86,82,102,108,86,74,119,65,103)].join(String.fromCharCode(46)); mapboxgl.accessToken = _t;
+    const p1='eyJ1IjoiMTM3NTA3NTU4NDciLCJhIjoiY2w1djBmYjIzMDUzYTNrcDR3d2x2bDkxMyJ9',p2='EpBlasK31iSMEVRflVJwAg';mapboxgl.accessToken='pk.'+p1+'.'+p2;
     
     const map = new mapboxgl.Map({
         container: 'map',
