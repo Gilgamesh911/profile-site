@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ===== Mapbox 配置 =====
     const _p='p'+'k'+'.';
-    const _a='eyJ1IjoiMTM3NTA3NTU4N';
+    const _a='eyJ1IjoiMTM3NTA3NTU4ND';
     const _b='ciLCJhIjoiY2w1djBmYjIzMD';
     const _c='UzYTNrcDR3d2x2bDkxMyJ9.E';
     const _d='pBlasK31iSMEVRflVJwAg';
