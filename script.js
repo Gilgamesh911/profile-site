@@ -39,8 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+    // 详细错误日志
     map.on('error', (e) => {
-        console.warn('Mapbox error:', e);
+        console.warn('=== Mapbox Error ===');
+        console.warn('Error object:', e);
+        if (e.error) {
+            console.warn('e.error:', e.error);
+            if (e.error.message) console.warn('Message:', e.error.message);
+            if (e.error.status) console.warn('Status:', e.error.status);
+        }
+        if (e.sourceId) console.warn('SourceId:', e.sourceId);
+        if (e.status) console.warn('HTTP Status:', e.status);
+        if (e.url) console.warn('URL:', e.url);
+        console.warn('===================');
     });
     
     // ===== Lenis 平滑滚动 =====
