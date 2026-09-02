@@ -1,4 +1,4 @@
-// ===== Mapbox GL JS 3D 地形 + 滚动驱动相机 =====
+// ===== Mapbox GL JS 3D 地形 + 滚动驱动相机 + 地球淡出 + 银河淡入 =====
 
 document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
@@ -23,8 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attributionControl: false
     });
     
-    // 3D 地形（satellite-v9 不自带 terrain，需手动添加）
-    let terrainReady = false;
+    // 3D 地形
     map.on('load', () => {
         try {
             map.addSource('mapbox-dem', {
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 maxzoom: 14
             });
             map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-            terrainReady = true;
         } catch (e) {
             console.warn('Terrain load failed:', e);
         }
@@ -68,10 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
+    const mapEl = document.getElementById('map');
     
     function lerp(a, b, t) { return a + (b - a) * t; }
     
-    // ===== 滚动驱动相机 =====
+    // ===== 滚动驱动相机 + 地球淡出 + 银河淡入 =====
     function setupScrollCamera() {
         ScrollTrigger.create({
             trigger: '.content-layer',
@@ -98,6 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
+                
+                // 地球淡出 + 银河淡入
+                if (index >= 5) {
+                    // 最后一段 beijing -> stars
+                    const fade = Math.min(1, localProgress * 2);
+                    mapEl.style.opacity = 1 - fade;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(fade);
+                    }
+                } else {
+                    mapEl.style.opacity = 1;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(0);
+                    }
+                }
             }
         });
     }
@@ -131,23 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
     
-    // ===== 银河增强 — 滚动到星辰大海时更亮 =====
-    const milkyWay = document.getElementById('milkyWay');
-    const milkyWayCore = document.getElementById('milkyWayCore');
-    ScrollTrigger.create({
-        trigger: '#stars',
-        start: 'top 90%',
-        end: 'top 30%',
-        onUpdate: (self) => {
-            const p = self.progress;
-            // milky-way: 0.85 -> 1.0
-            milkyWay.style.opacity = 0.85 + p * 0.15;
-            // milky-way-core: 0.6 -> 1.0
-            if (milkyWayCore) milkyWayCore.style.opacity = 0.6 + p * 0.4;
-        }
-    });
-    
-    
     // ===== 导航平滑滚动 =====
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
@@ -180,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
                 );
                 setupScrollCamera();
+                if (window.galaxyCanvas) window.galaxyCanvas.init();
             }, 300);
         }
         
