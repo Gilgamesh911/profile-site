@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pitch: 0,
         bearing: 0,
         antialias: true,
-        projection: { name: 'globe' },
-        attributionControl: false
         attributionControl: false
     });
     
@@ -64,11 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'stars',     center: [105.0, 35.0], zoom: 0.5,  pitch: 0,  bearing: 0 },
+        { name: 'stars',     center: [105.0, 35.0], zoom: 1.0,  pitch: 0,  bearing: 0 },
     ];
     
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
+    const spaceOverlay = document.getElementById('spaceOverlay');
     
     function lerp(a, b, t) { return a + (b - a) * t; }
     
@@ -99,6 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
+                
+                // 星辰大海段显示太空遮罩
+                const starsProgress = Math.max(0, (progress - 0.85) / 0.15);
+                if (spaceOverlay) {
+                    spaceOverlay.style.opacity = Math.min(1, starsProgress * 1.5);
+                }
             }
         });
     }

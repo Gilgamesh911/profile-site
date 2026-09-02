@@ -259,7 +259,45 @@
             background: rgba(0, 0, 0, 0.4);
         }
         
-        /* ===== 星辰大海 ===== */
+        /* ===== 太空遮罩（星辰大海段） ===== */
+        .space-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 0%, #000010 70%);
+            opacity: 0;
+            transition: opacity 0.1s linear;
+        }
+        
+        .stars-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+            opacity: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 300px 50px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 350px 150px, #fff, transparent),
+                radial-gradient(2px 2px at 450px 90px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 500px 200px, #fff, transparent),
+                radial-gradient(2px 2px at 600px 60px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 700px 130px, #fff, transparent),
+                radial-gradient(2px 2px at 800px 40px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 850px 180px, #fff, transparent),
+                radial-gradient(2px 2px at 950px 100px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 1000px 60px, #fff, transparent),
+                radial-gradient(2px 2px at 1100px 140px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 1200px 80px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 1200px 250px;
+            transition: opacity 0.1s linear;
+        }
         .footer-panel {
             min-height: 100vh;
             display: flex;
@@ -370,6 +408,11 @@
     <div id="map"></div>
     
     <!-- 胶片颗粒纹理叠加 -->
+    <div class="grain-overlay"></div>
+    
+    <!-- 太空遮罩（星辰大海段渐显） -->
+    <div class="space-overlay" id="spaceOverlay"></div>
+    <div class="stars-bg" id="starsBg"></div>
     <div class="grain-overlay"></div>
     
     <!-- 导航 -->
