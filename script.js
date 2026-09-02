@@ -98,7 +98,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
                 
-                // 地球淡出 + 银河淡入
+                // 地球淡出 + 银河淡入 + 飞入动画
+                if (index >= 5) {
+                    // 最后一段 beijing -> stars
+                    const fade = Math.min(1, localProgress * 2);
+                    mapEl.style.opacity = 1 - fade;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(fade);
+                        // 相机从远处飞入银河：z 从 1500 降到 350
+                        window.galaxyCanvas.setCameraZ(1500 - fade * 1150);
+                        // zoom 从 0.4 放大到 2.8（飞入时银河越来越大）
+                        window.galaxyCanvas.setZoom(0.4 + fade * 2.4);
+                    }
+                } else {
+                    mapEl.style.opacity = 1;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(0);
+                        window.galaxyCanvas.setCameraZ(1500);
+                        window.galaxyCanvas.setZoom(0.4);
+                    }
+                }
                 if (index >= 5) {
                     // 最后一段 beijing -> stars
                     const fade = Math.min(1, localProgress * 2);
