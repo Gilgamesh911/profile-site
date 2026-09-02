@@ -70,10 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollHint = document.getElementById('scrollHint');
     
     function lerp(a, b, t) { return a + (b - a) * t; }
-    const scrollHint = document.getElementById('scrollHint');
-    const spaceOverlay = document.getElementById('spaceOverlay');
-    
-    function lerp(a, b, t) { return a + (b - a) * t; }
     
     // ===== 滚动驱动相机 =====
     function setupScrollCamera() {
@@ -102,18 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
-            }
-        });
-    }
-                
-                coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
-                scrollHint.classList.toggle('hidden', progress > 0.02);
-                
-                // 星辰大海段显示太空遮罩
-                const starsProgress = Math.max(0, (progress - 0.85) / 0.15);
-                if (spaceOverlay) {
-                    spaceOverlay.style.opacity = Math.min(1, starsProgress * 1.5);
-                }
             }
         });
     }
