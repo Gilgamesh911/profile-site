@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/13750755847/cmtjkntik00ct01qu3pyi1l2c?fresh=true',
+        style: 'mapbox://styles/mapbox/satellite-v9',
         center: [105, 35],
         zoom: 4,
         pitch: 0,
@@ -22,7 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
         attributionControl: false
     });
     
-    // 样式已自带 terrain 配置，无需手动添加
+    // 3D 地形（satellite-v9 不自带 terrain，需手动添加）
+    let terrainReady = false;
+    map.on('load', () => {
+        try {
+            map.addSource('mapbox-dem', {
+                type: 'raster-dem',
+                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                tileSize: 512,
+                maxzoom: 14
+            });
+            map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+            terrainReady = true;
+        } catch (e) {
+            console.warn('Terrain load failed:', e);
+        }
+    });
     let terrainReady = false;
     map.on('load', () => {
         terrainReady = true;
