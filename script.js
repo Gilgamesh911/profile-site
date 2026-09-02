@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/13750755847/cmtjkntik00ct01qu3pyi1l2c',
+        style: 'mapbox://styles/13750755847/cmtjkntik00ct01qu3pyi1l2c?fresh=true',
         center: [105, 35],
         zoom: 4,
         pitch: 0,
