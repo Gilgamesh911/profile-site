@@ -76,7 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== 相机路径（滚动分段） =====
     const cameraPath = [
         { name: 'hero',      center: [105.0, 35.0], zoom: 4.0,  pitch: 0,  bearing: 0 },
-        { name: 'tongxiang', center: [120.56, 30.63], zoom: 16.0, pitch: 65, bearing: 0 },
+        { name: 'tongxiang', center: [120.56, 30.63], zoom: 12.0, pitch: 65, bearing: 0 },
+        { name: 'chengdu',   center: [104.06, 30.67], zoom: 12.0, pitch: 65, bearing: 0 },
+        { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
+        { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
+        { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'chengdu',   center: [104.06, 30.67], zoom: 16.0, pitch: 65, bearing: 0 },
         { name: 'hefei',     center: [117.23, 31.82], zoom: 16.0, pitch: 65, bearing: 0 },
         { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
