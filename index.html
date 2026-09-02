@@ -30,7 +30,163 @@
             line-height: 1.7;
         }
         
-        /* ===== 星空背景（始终显示，地球球体缩小后可见） ===== */
+        /* ===== 银河星空背景 ===== */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: radial-gradient(ellipse at 50% 50%, #0c1229 0%, #070d1f 25%, #030610 55%, #000000 100%);
+        }
+        
+        /* 银河核心亮带 — 旋臂 */
+        .milky-way {
+            position: fixed;
+            inset: -30%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.7;
+            transition: opacity 1.5s ease;
+            background:
+                /* 银河中心主亮带 */
+                radial-gradient(ellipse 85% 22% at 50% 50%, rgba(180, 160, 255, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 16% at 53% 47%, rgba(220, 210, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 110% 28% at 48% 53%, rgba(140, 100, 220, 0.10) 0%, transparent 55%),
+                /* 旋臂 — 左上到右下 */
+                radial-gradient(ellipse 70% 10% at 28% 32%, rgba(160, 140, 240, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 70% 10% at 72% 68%, rgba(140, 100, 220, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 55% 8% at 18% 58%, rgba(180, 160, 255, 0.06) 0%, transparent 45%),
+                radial-gradient(ellipse 55% 8% at 82% 42%, rgba(160, 140, 240, 0.06) 0%, transparent 45%),
+                /* 外围弥散星云 */
+                radial-gradient(ellipse 140% 35% at 50% 50%, rgba(100, 80, 180, 0.05) 0%, transparent 60%);
+            transform: rotate(-12deg);
+            filter: blur(2px);
+        }
+        
+        .milky-way.bright {
+            opacity: 1;
+        }
+        
+        /* 星星层 */
+        .stars-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .stars-layer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                /* 大亮星 */
+                radial-gradient(2.5px 2.5px at 15% 25%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 35% 15%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2.5px 2.5px at 65% 35%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 85% 20%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2.5px 2.5px at 25% 65%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 75% 70%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2.5px 2.5px at 50% 80%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 10% 45%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2.5px 2.5px at 90% 55%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 45% 10%, rgba(255,255,255,0.9), transparent),
+                radial-gradient(2.5px 2.5px at 55% 90%, rgba(255,255,255,0.95), transparent),
+                radial-gradient(2px 2px at 5% 75%, rgba(255,255,255,0.9), transparent),
+                /* 中星 — 银河带内更密集 */
+                radial-gradient(1.5px 1.5px at 30% 30%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 40% 40%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 50% 35%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 60% 45%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 45% 55%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 55% 50%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 35% 50%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 65% 55%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 48% 42%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 52% 58%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.5px 1.5px at 20% 50%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1.5px 1.5px at 80% 48%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1.5px 1.5px at 42% 22%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1.5px 1.5px at 58% 78%, rgba(255,255,255,0.7), transparent),
+                /* 小星 — 遍布全屏 */
+                radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 22% 8%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 38% 5%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 48% 18%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 62% 8%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 92% 8%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 12% 35%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 28% 28%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 72% 32%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 88% 38%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 5% 55%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 18% 62%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 32% 72%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 42% 68%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 58% 72%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 68% 62%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 82% 72%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 95% 65%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 35% 88%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 50% 92%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 65% 88%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 85% 85%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 95% 92%, rgba(255,255,255,0.6), transparent),
+                /* 彩色星 — 淡蓝/淡紫 */
+                radial-gradient(1.5px 1.5px at 33% 33%, rgba(180, 200, 255, 0.7), transparent),
+                radial-gradient(1.5px 1.5px at 66% 66%, rgba(200, 180, 255, 0.7), transparent),
+                radial-gradient(1px 1px at 45% 48%, rgba(160, 220, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 55% 52%, rgba(220, 180, 240, 0.6), transparent);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        
+        /* 第二层星星 — 错位动画 */
+        .stars-layer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 28% 22%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 42% 12%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 58% 20%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 72% 15%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 88% 25%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 15% 42%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 32% 38%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 48% 32%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 68% 42%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 82% 35%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 48%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 8% 62%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 25% 58%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 38% 68%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 52% 62%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 62% 58%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 78% 65%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 58%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 18% 78%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 35% 82%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 48% 75%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 65% 82%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 82% 78%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 92% 88%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 5% 92%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 22% 95%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 55% 95%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 75% 92%, rgba(255,255,255,0.5), transparent);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            animation: twinkle 5s ease-in-out infinite alternate-reverse;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.65; }
+            100% { opacity: 1; }
+        }
         .starfield {
             position: fixed;
             inset: 0;
@@ -416,7 +572,10 @@
     </style>
 </head>
 <body>
-    <!-- 星空背景（始终显示） -->
+    <!-- 银河背景 -->
+    <div class="starfield"></div>
+    <div class="milky-way" id="milkyWay"></div>
+    <div class="stars-layer"></div>
     <div class="starfield"></div>
 
     <!-- 加载动画 -->

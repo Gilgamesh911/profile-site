@@ -131,6 +131,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
     
+    // ===== 银河增强 — 滚动到星辰大海时更亮 =====
+    const milkyWay = document.getElementById('milkyWay');
+    ScrollTrigger.create({
+        trigger: '#stars',
+        start: 'top 90%',
+        end: 'top 30%',
+        onUpdate: (self) => {
+            const brightness = 0.7 + self.progress * 0.35;
+            milkyWay.style.opacity = brightness;
+        }
+    });
+    
+    // ===== 导航平滑滚动 =====
+    gsap.fromTo('#starsTitle',
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out',
+          scrollTrigger: { trigger: '#stars', start: 'top 70%', toggleActions: 'play none none reverse' }
+        }
+    );
+    gsap.fromTo('#starsSubtitle',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power2.out',
+          scrollTrigger: { trigger: '#stars', start: 'top 60%', toggleActions: 'play none none reverse' }
+        }
+    );
+    
     // ===== 导航平滑滚动 =====
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
