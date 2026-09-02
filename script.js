@@ -22,21 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
         attributionControl: false
     });
     
-    // 3D 地形
+    // 样式已自带 terrain 配置，无需手动添加
     let terrainReady = false;
     map.on('load', () => {
-        try {
-            map.addSource('mapbox-dem', {
-                type: 'raster-dem',
-                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                tileSize: 512,
-                maxzoom: 14
-            });
-            map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-            terrainReady = true;
-        } catch (e) {
-            console.warn('Terrain load failed:', e);
-        }
+        terrainReady = true;
     });
     
     // 详细错误日志
