@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
+    
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    const scrollHint = document.getElementById('scrollHint');
     const spaceOverlay = document.getElementById('spaceOverlay');
     
     function lerp(a, b, t) { return a + (b - a) * t; }
@@ -96,6 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const bearing = lerp(from.bearing, to.bearing, localProgress);
                 
                 map.jumpTo({ center, zoom, pitch, bearing });
+                
+                coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
+                scrollHint.classList.toggle('hidden', progress > 0.02);
+            }
+        });
+    }
                 
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);

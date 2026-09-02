@@ -30,6 +30,72 @@
             line-height: 1.7;
         }
         
+        /* ===== 星空背景（始终显示，地球球体缩小后可见） ===== */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        }
+        
+        .starfield::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 160px 120px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 200px 50px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 230px 180px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 280px 90px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 320px 140px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 380px 60px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 420px 110px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 480px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 520px 170px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 580px 80px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 620px 130px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 680px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 720px 150px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 780px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 820px 120px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 880px 50px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 920px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 980px 90px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1020px 140px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1080px 30px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1120px 100px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1180px 170px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1220px 60px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1280px 130px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1320px 80px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1380px 150px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1420px 40px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1480px 110px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1520px 170px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1580px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1620px 120px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1680px 50px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1720px 90px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1780px 160px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1820px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 1880px 100px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 1920px 140px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 2000px 200px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
         /* ===== Mapbox 地图 ===== */
         #map {
             position: fixed;
@@ -259,45 +325,7 @@
             background: rgba(0, 0, 0, 0.4);
         }
         
-        /* ===== 太空遮罩（星辰大海段） ===== */
-        .space-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 5;
-            pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 0%, #000010 70%);
-            opacity: 0;
-            transition: opacity 0.1s linear;
-        }
-        
-        .stars-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 4;
-            pointer-events: none;
-            opacity: 0;
-            background: 
-                radial-gradient(2px 2px at 20px 30px, #fff, transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
-                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
-                radial-gradient(1px 1px at 230px 80px, #fff, transparent),
-                radial-gradient(2px 2px at 300px 50px, rgba(255,255,255,0.7), transparent),
-                radial-gradient(1px 1px at 350px 150px, #fff, transparent),
-                radial-gradient(2px 2px at 450px 90px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 500px 200px, #fff, transparent),
-                radial-gradient(2px 2px at 600px 60px, rgba(255,255,255,0.9), transparent),
-                radial-gradient(1px 1px at 700px 130px, #fff, transparent),
-                radial-gradient(2px 2px at 800px 40px, rgba(255,255,255,0.8), transparent),
-                radial-gradient(1px 1px at 850px 180px, #fff, transparent),
-                radial-gradient(2px 2px at 950px 100px, rgba(255,255,255,0.7), transparent),
-                radial-gradient(1px 1px at 1000px 60px, #fff, transparent),
-                radial-gradient(2px 2px at 1100px 140px, rgba(255,255,255,0.9), transparent),
-                radial-gradient(1px 1px at 1200px 80px, #fff, transparent);
-            background-repeat: repeat;
-            background-size: 1200px 250px;
-            transition: opacity 0.1s linear;
-        }
+        /* ===== 星辰大海 ===== */
         .footer-panel {
             min-height: 100vh;
             display: flex;
@@ -388,6 +416,9 @@
     </style>
 </head>
 <body>
+    <!-- 星空背景（始终显示） -->
+    <div class="starfield"></div>
+
     <!-- 加载动画 -->
     <div class="loader" id="loader">
         <div class="loader-brand">徐振洋</div>
@@ -408,11 +439,6 @@
     <div id="map"></div>
     
     <!-- 胶片颗粒纹理叠加 -->
-    <div class="grain-overlay"></div>
-    
-    <!-- 太空遮罩（星辰大海段渐显） -->
-    <div class="space-overlay" id="spaceOverlay"></div>
-    <div class="stars-bg" id="starsBg"></div>
     <div class="grain-overlay"></div>
     
     <!-- 导航 -->
