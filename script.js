@@ -38,25 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('Terrain load failed:', e);
         }
     });
-    let terrainReady = false;
-    map.on('load', () => {
-        terrainReady = true;
-    });
-    
-    // 详细错误日志
-    map.on('error', (e) => {
-        console.warn('=== Mapbox Error ===');
-        console.warn('Error object:', e);
-        if (e.error) {
-            console.warn('e.error:', e.error);
-            if (e.error.message) console.warn('Message:', e.error.message);
-            if (e.error.status) console.warn('Status:', e.error.status);
-        }
-        if (e.sourceId) console.warn('SourceId:', e.sourceId);
-        if (e.status) console.warn('HTTP Status:', e.status);
-        if (e.url) console.warn('URL:', e.url);
-        console.warn('===================');
-    });
     
     // ===== Lenis 平滑滚动 =====
     const lenis = new Lenis({
@@ -81,10 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'chengdu',   center: [104.06, 30.67], zoom: 16.0, pitch: 65, bearing: 0 },
-        { name: 'hefei',     center: [117.23, 31.82], zoom: 16.0, pitch: 65, bearing: 0 },
-        { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'beijing',   center: [116.40, 39.90], zoom: 16.0, pitch: 65, bearing: 0 },
         { name: 'stars',     center: [105.0, 35.0], zoom: 2.0,  pitch: 0,  bearing: 0 },
     ];
     
@@ -162,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // ===== 加载动画（独立运行，不依赖地图） =====
+    // ===== 加载动画 =====
     const loader = document.getElementById('loader');
     const loaderBar = document.getElementById('loaderBar');
     const loaderPercent = document.getElementById('loaderPercent');
