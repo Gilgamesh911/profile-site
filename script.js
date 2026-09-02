@@ -18,6 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
         zoom: 4,
         pitch: 0,
         bearing: 0,
+        projection: 'globe',
+        antialias: true,
+        attributionControl: false
+    });
+        container: 'map',
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        center: [105, 35],
+        zoom: 4,
+        pitch: 0,
+        bearing: 0,
         antialias: true,
         attributionControl: false
     });
