@@ -187,70 +187,6 @@
             0% { opacity: 0.65; }
             100% { opacity: 1; }
         }
-        .starfield {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-        }
-        
-        .starfield::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 160px 120px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 200px 50px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 230px 180px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 280px 90px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 320px 140px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 380px 60px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 420px 110px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 480px 30px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 520px 170px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 580px 80px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 620px 130px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 680px 40px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 720px 150px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 780px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 820px 120px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 880px 50px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 920px 160px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 980px 90px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1020px 140px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1080px 30px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1120px 100px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1180px 170px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1220px 60px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1280px 130px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1320px 80px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1380px 150px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1420px 40px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1480px 110px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1520px 170px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1580px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1620px 120px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1680px 50px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1720px 90px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1780px 160px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1820px 30px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 1880px 100px, #fff, rgba(0,0,0,0)),
-                radial-gradient(1px 1px at 1920px 140px, #ddd, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 2000px 200px;
-            animation: twinkle 4s ease-in-out infinite alternate;
-        }
-        
-        @keyframes twinkle {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
         
         /* ===== Mapbox 地图 ===== */
         #map {
@@ -576,7 +512,6 @@
     <div class="starfield"></div>
     <div class="milky-way" id="milkyWay"></div>
     <div class="stars-layer"></div>
-    <div class="starfield"></div>
 
     <!-- 加载动画 -->
     <div class="loader" id="loader">
@@ -732,6 +667,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
