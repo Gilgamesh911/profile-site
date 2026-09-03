@@ -16,7 +16,7 @@
     // 配置
     const CONFIG = {
         starCount: 80000,      // 总星数
-        coreCount: 800,        // 核心亮星（大幅减少，更稀疏）
+        coreCount: 2000,        // 核心亮星（大幅减少，更稀疏）
         armCount: 4,           // 旋臂数
         spiralTightness: 3.5,  // 螺旋紧度
         galaxyRadius: 3800,    // 银河半径（更大星盘）
