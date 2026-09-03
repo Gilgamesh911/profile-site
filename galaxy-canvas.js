@@ -19,7 +19,7 @@
         coreCount: 800,        // 核心亮星（大幅减少，更稀疏）
         armCount: 4,           // 旋臂数
         spiralTightness: 3.5,  // 螺旋紧度
-        galaxyRadius: 3800,    // 银河半径（更大星盘）
+        galaxyRadius: 3200,    // 银河半径（更大星盘）
         diskThickness: 55,     // 盘面厚度
         coreRadius: 900,       // 核球半径（更大更分散）
         armSpread: 0.20        // 旋臂宽度
