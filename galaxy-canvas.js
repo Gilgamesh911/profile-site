@@ -231,42 +231,79 @@
     }
     
     function createGalaxyCore() {
-        // 超亮核心星
-        const count = CONFIG.coreCount;
+        // 核心区：从星核向外渐变扩散到红色圆圈边界
+        const count = 8000;  // 增加数量，核心区有足够密度
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
         const colors = new Float32Array(count * 3);
         const sizes = new Float32Array(count);
+        const opacities = new Float32Array(count);
         
+        // 核心区分层：星核（超密）→ 核球（密）→ 外围（疏）
         for (let i = 0; i < count; i++) {
-            const r = Math.sqrt(Math.random()) * CONFIG.coreRadius; // 均匀分散
+            // 使用 pow 让星星高度集中在中心，向外幂律衰减
+            const t = Math.pow(Math.random(), 3.0); // t≈0 中心, t≈1 边缘
+            const r = t * CONFIG.coreRadius;
             const angle = Math.random() * Math.PI * 2;
-            const z = (Math.random() - 0.5) * CONFIG.diskThickness * 0.3;
+            const z = (Math.random() - 0.5) * CONFIG.diskThickness * (0.3 + t * 0.4);
             
             positions[i * 3] = Math.cos(angle) * r;
             positions[i * 3 + 1] = Math.sin(angle) * r;
             positions[i * 3 + 2] = z;
             
-            // 核心颜色：红、橙、黄、白混合
-            const corePalette = [
-                [1.0, 0.4, 0.3], // 红
-                [1.0, 0.6, 0.3], // 橙红
-                [1.0, 0.8, 0.4], // 橙黄
-                [1.0, 0.9, 0.6], // 黄
-                [1.0, 1.0, 0.9], // 淡黄白
-                [1.0, 1.0, 1.0], // 白
-            ];
-            const c = corePalette[Math.floor(Math.random() * corePalette.length)];
-            colors[i * 3] = c[0];
-            colors[i * 3 + 1] = c[1];
-            colors[i * 3 + 2] = c[2];
+            // 距离比例（0=中心, 1=边缘）
+            const distRatio = r / CONFIG.coreRadius;
             
-            sizes[i] = 2.5 + Math.random() * 3.5;
+            // 颜色：中心偏暖（红/橙/黄），外围偏淡
+            const corePalette = [
+                new THREE.Color(0xff6644), // 红
+                new THREE.Color(0xff8844), // 橙红
+                new THREE.Color(0xffaa44), // 橙
+                new THREE.Color(0xffcc66), // 黄
+                new THREE.Color(0xffeeaa), // 淡黄
+                new THREE.Color(0xffffff), // 白
+            ];
+            
+            let starColor;
+            if (distRatio < 0.15) {
+                // 星核：暖色调为主
+                starColor = corePalette[Math.floor(Math.random() * 4)];
+            } else if (distRatio < 0.4) {
+                // 内层：加入白/淡黄
+                starColor = corePalette[Math.floor(Math.random() * 5)];
+            } else {
+                // 外围：更多白色
+                starColor = corePalette[Math.floor(Math.random() * corePalette.length)];
+            }
+            
+            // 向外渐变：混入一点冷色
+            if (distRatio > 0.5) {
+                starColor.lerp(new THREE.Color(0xaaddff), (distRatio - 0.5) * 0.3);
+            }
+            
+            colors[i * 3] = starColor.r;
+            colors[i * 3 + 1] = starColor.g;
+            colors[i * 3 + 2] = starColor.b;
+            
+            // 大小：中心大，向外递减
+            if (distRatio < 0.1) {
+                sizes[i] = 12.0 + Math.random() * 16.0;  // 星核：12-28
+            } else if (distRatio < 0.3) {
+                sizes[i] = 8.0 + Math.random() * 10.0;   // 内层：8-18
+            } else if (distRatio < 0.6) {
+                sizes[i] = 5.0 + Math.random() * 6.0;    // 中层：5-11
+            } else {
+                sizes[i] = 3.0 + Math.random() * 4.0;    // 外层：3-7
+            }
+            
+            // 透明度：中心亮，外围淡
+            opacities[i] = 0.9 * (1.0 - distRatio * 0.4) + Math.random() * 0.2;
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('alpha', new THREE.BufferAttribute(opacities, 1));
         
         const material = new THREE.ShaderMaterial({
             uniforms: {
@@ -276,34 +313,39 @@
             },
             vertexShader: `
                 attribute float size;
+                attribute float alpha;
                 attribute vec3 color;
                 varying vec3 vColor;
+                varying float vAlpha;
                 uniform float uTime;
                 uniform float uPixelRatio;
                 
                 void main() {
                     vColor = color;
+                    vAlpha = alpha;
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                     float dist = length(mvPosition.xyz);
-                    float sizeAtten = 300.0 / dist;
+                    float sizeAtten = 800.0 / dist;
                     float twinkle = sin(uTime * 1.5 + position.x * 0.05) * 0.2 + 0.8;
                     gl_PointSize = size * sizeAtten * uPixelRatio * twinkle;
-                    gl_PointSize = clamp(gl_PointSize, 1.0, 25.0);
+                    gl_PointSize = clamp(gl_PointSize, 1.0, 40.0);
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
             fragmentShader: `
                 varying vec3 vColor;
+                varying float vAlpha;
                 uniform float uOpacity;
                 
                 void main() {
                     float dist = length(gl_PointCoord - vec2(0.5));
                     if (dist > 0.5) discard;
                     float alpha = 1.0 - smoothstep(0.1, 0.5, dist);
-                    // 强发光
-                    float glow = exp(-dist * dist * 8.0);
-                    vec3 finalColor = vColor + vec3(glow * 0.5);
-                    gl_FragColor = vec4(finalColor, alpha * uOpacity);
+                    alpha *= vAlpha * uOpacity;
+                    // 超宽发光：从中心向外的渐变光晕
+                    float glow = exp(-dist * dist * 2.5);
+                    vec3 finalColor = vColor * (1.0 + glow * 0.8);
+                    gl_FragColor = vec4(finalColor, alpha);
                 }
             `,
             transparent: true,
