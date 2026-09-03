@@ -106,13 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (window.galaxyCanvas) {
                         window.galaxyCanvas.setOpacity(fade);
                         // 银河从 scale=1 扑面而来到 scale=3
-                        window.galaxyCanvas.setScale(1 + fade * 2);
+                        window.galaxyCanvas.setScale(0.5 + fade * 5);
                     }
                 } else {
                     mapEl.style.opacity = 1;
                     if (window.galaxyCanvas) {
                         window.galaxyCanvas.setOpacity(0);
-                        window.galaxyCanvas.setScale(1);
+                        window.galaxyCanvas.setScale(0.5);
                     }
                 }
             }
