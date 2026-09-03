@@ -99,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
                 
-                // 地球淡出 + Three.js 银河飞入
+                // 地球淡出 + Three.js 银河飞入（从上海段开始）
+                if (index >= 6) {
                 if (index >= 5) {
                     const fade = Math.min(1, localProgress * 2);
                     mapEl.style.opacity = 1 - fade;
