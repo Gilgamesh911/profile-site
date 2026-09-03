@@ -38,11 +38,25 @@
             background: radial-gradient(ellipse at 50% 50%, #0a0f2e 0%, #050818 30%, #02040d 60%, #000000 100%);
         }
         
-        /* ===== Canvas 银河层 ===== */
+        /* ===== 照片级银河层 ===== */
+        #galaxyImage {
+            position: fixed;
+            inset: -50%;
+            width: 200vw;
+            height: 200vh;
+            z-index: -2;
+            pointer-events: none;
+            opacity: 0;
+            background: url('galaxy-ref.png') center/contain no-repeat;
+            transform: scale(0.3);
+            will-change: transform, opacity;
+        }
+        
+        /* ===== Canvas 银河层（备用） ===== */
         #galaxyCanvas {
             position: fixed;
             inset: 0;
-            z-index: -2;
+            z-index: -1;
             pointer-events: none;
         }
         
@@ -367,6 +381,7 @@
     
     <!-- Canvas 银河 -->
     <canvas id="galaxyCanvas"></canvas>
+    <div id="galaxyImage"></div>
     
     <!-- Mapbox 地图 -->
     <div id="map"></div>
@@ -522,7 +537,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
-    <script src="galaxy-canvas.js?v=4"></script>
-    <script src="script.js?v=9"></script>
+    <script src="galaxy-canvas.js?v=5"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>

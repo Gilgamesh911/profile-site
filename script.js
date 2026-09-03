@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
     const mapEl = document.getElementById('map');
+    const galaxyImage = document.getElementById('galaxyImage');
     
     function lerp(a, b, t) { return a + (b - a) * t; }
     
@@ -98,21 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
                 
-                // 地球淡出 + 银河淡入 + 扑面而来
+                // 地球淡出 + 银河图片扑面而来
                 if (index >= 5) {
-                    // 最后一段 beijing -> stars
                     const fade = Math.min(1, localProgress * 2);
                     mapEl.style.opacity = 1 - fade;
-                    if (window.galaxyCanvas) {
-                        window.galaxyCanvas.setOpacity(fade);
-                        // 银河从 scale=1 扑面而来到 scale=3
-                        window.galaxyCanvas.setScale(0.5 + fade * 5);
+                    if (galaxyImage) {
+                        galaxyImage.style.opacity = fade;
+                        galaxyImage.style.transform = `scale(${0.3 + fade * 2.7})`;
                     }
                 } else {
                     mapEl.style.opacity = 1;
-                    if (window.galaxyCanvas) {
-                        window.galaxyCanvas.setOpacity(0);
-                        window.galaxyCanvas.setScale(0.5);
+                    if (galaxyImage) {
+                        galaxyImage.style.opacity = 0;
+                        galaxyImage.style.transform = 'scale(0.3)';
                     }
                 }
             }
