@@ -16,7 +16,7 @@
     // 配置
     const CONFIG = {
         starCount: 80000,      // 总星数
-        coreCount: 800,        // 核心亮星（大幅减少，更稀疏）
+        coreCount: 1200,      // 核心亮星（适当增加）
         armCount: 4,           // 旋臂数
         spiralTightness: 3.5,  // 螺旋紧度
         galaxyRadius: 3800,    // 银河半径（更大星盘）
@@ -261,7 +261,7 @@
             colors[i * 3 + 1] = c[1];
             colors[i * 3 + 2] = c[2];
             
-            sizes[i] = 2.5 + Math.random() * 3.5;
+            sizes[i] = 3.5 + Math.random() * 5.5; // 核心亮星更大更亮
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
