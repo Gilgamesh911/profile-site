@@ -16,13 +16,13 @@
     // 配置
     const CONFIG = {
         starCount: 80000,      // 总星数
-        coreCount: 1500,       // 核心亮星（减少，更稀疏）
+        coreCount: 800,        // 核心亮星（大幅减少，更稀疏）
         armCount: 4,           // 旋臂数
         spiralTightness: 3.5,  // 螺旋紧度
-        galaxyRadius: 3200,    // 银河半径（更大星盘）
-        diskThickness: 50,     // 盘面厚度
-        coreRadius: 600,       // 核球半径（更大更分散）
-        armSpread: 0.18        // 旋臂宽度
+        galaxyRadius: 3800,    // 银河半径（更大星盘）
+        diskThickness: 55,     // 盘面厚度
+        coreRadius: 900,       // 核球半径（更大更分散）
+        armSpread: 0.20        // 旋臂宽度
     };
     
     function init() {
@@ -74,15 +74,15 @@
         for (let i = 0; i < CONFIG.starCount; i++) {
             let x, y, z, r, angle;
             
-            // 80% 在旋臂上，20% 弥散
-            const onArm = Math.random() < 0.8;
+            // 65% 在旋臂上，35% 弥散
+            const onArm = Math.random() < 0.65;
             
             if (onArm) {
                 const arm = Math.floor(Math.random() * CONFIG.armCount);
                 const armAngle = (Math.PI * 2 / CONFIG.armCount) * arm;
                 
                 // t: 0=中心, 1=边缘，更多星在中部
-                const t = Math.pow(Math.random(), 0.5); // 更均匀分布到外围
+                const t = Math.pow(Math.random(), 0.65); // 更多星分布到外围
                 r = t * CONFIG.galaxyRadius;
                 
                 // 螺旋角
@@ -239,7 +239,7 @@
         const sizes = new Float32Array(count);
         
         for (let i = 0; i < count; i++) {
-            const r = Math.pow(Math.random(), 1.8) * CONFIG.coreRadius; // 更分散
+            const r = Math.sqrt(Math.random()) * CONFIG.coreRadius; // 均匀分散
             const angle = Math.random() * Math.PI * 2;
             const z = (Math.random() - 0.5) * CONFIG.diskThickness * 0.3;
             
@@ -261,7 +261,7 @@
             colors[i * 3 + 1] = c[1];
             colors[i * 3 + 2] = c[2];
             
-            sizes[i] = 3.0 + Math.random() * 5.0;
+            sizes[i] = 2.5 + Math.random() * 3.5;
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
