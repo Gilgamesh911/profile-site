@@ -5,31 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>徐振洋 | 空间之旅</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+SC:wght@400;500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
+        /* ===== San Rita 式配色：灰 × 绿 ===== */
         :root {
-            --paper: #e8e0d0;
-            --ink: #2c2416;
-            --ink-light: #5c4f3a;
-            --trail: #c17817;
-            --forest: #4a6741;
+            --icy: #dde2e4;        /* 浅灰（亮面） */
+            --deep: #161b13;       /* 墨绿黑 */
+            --forest: #2d3329;     /* 森林绿灰 */
+            --terrain: #84907f;    /* 鼠尾草灰绿 */
+            --neon: #e2ffcc;       /* 荧光浅绿（强调色） */
+            --display: 'Anton', 'Noto Sans SC', sans-serif;
+            --mono: 'Space Mono', 'Noto Sans SC', monospace;
+            --cut: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
         }
-        
+
         html.lenis, html.lenis body { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
         .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
         .lenis.lenis-stopped { overflow: hidden; }
-        
+
         body {
-            font-family: 'Noto Serif SC', 'Playfair Display', Georgia, serif;
-            color: var(--ink);
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--icy);
+            background: var(--deep);
             overflow-x: hidden;
             line-height: 1.7;
         }
-        
+
         /* ===== 深空底色 ===== */
         .starfield {
             position: fixed;
@@ -37,7 +43,7 @@
             z-index: -3;
             background: radial-gradient(ellipse at 50% 50%, #0a0f2e 0%, #050818 30%, #02040d 60%, #000000 100%);
         }
-        
+
         /* ===== Canvas 银河层 ===== */
         #galaxyCanvas {
             position: fixed;
@@ -45,7 +51,7 @@
             z-index: -2;
             pointer-events: none;
         }
-        
+
         /* ===== Mapbox 地图 ===== */
         #map {
             position: fixed;
@@ -55,154 +61,508 @@
             z-index: 0;
             transition: opacity 0.1s linear;
         }
-        
-        /* 隐藏 Mapbox logo 和控件 */
+
         .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib, .mapboxgl-ctrl-bottom-right {
             display: none !important;
         }
-        
-        /* ===== 加载动画 ===== */
+
+        /* 地图墨绿调色罩 + 暗角 */
+        .map-tint {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(22,27,19,0.55) 100%),
+                linear-gradient(rgba(22,27,19,0.22), rgba(22,27,19,0.22));
+            mix-blend-mode: multiply;
+        }
+
+        /* ===== 加载动画（San Rita 式浅灰底） ===== */
         .loader {
             position: fixed;
             inset: 0;
             z-index: 200;
-            background: #0a0a0a;
+            background: var(--icy);
+            color: var(--deep);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            justify-content: space-between;
+            padding: 2rem 3rem 2.5rem;
+            transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
         }
-        
-        .loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+
+        .loader.done {
+            transform: translateY(-101%);
         }
-        
-        .loader-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 600;
-            color: #fff;
-            letter-spacing: 4px;
-            margin-bottom: 3rem;
-        }
-        
-        .loader-steps {
-            position: relative;
-            text-align: center;
-            min-height: 1.5rem;
-            margin-bottom: 2rem;
-            width: 280px;
-        }
-        
-        .loader-step {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.6);
+
+        .loader-top {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--mono);
+            font-size: 0.7rem;
             letter-spacing: 2px;
-            opacity: 0;
-            transform: translateY(8px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            position: absolute;
-            width: 100%;
-            left: 0;
-            top: 0;
+            text-transform: uppercase;
+            color: var(--forest);
         }
-        
-        .loader-step.active {
-            opacity: 1;
-            transform: translateY(0);
+
+        .loader-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2.2rem;
         }
-        
-        .loader-progress {
-            width: 200px;
-            height: 1px;
-            background: rgba(255,255,255,0.15);
-            position: relative;
+
+        .loader-kicker {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--terrain);
+        }
+
+        .loader-title {
+            font-family: var(--display);
+            font-weight: 900;
+            font-size: clamp(3.2rem, 10vw, 7rem);
+            line-height: 1.02;
+            letter-spacing: 0.02em;
+            color: var(--deep);
+            display: flex;
+        }
+
+        .loader-title .lt {
+            display: inline-block;
             overflow: hidden;
         }
-        
-        .loader-progress-bar {
+
+        .loader-title .lt i {
+            display: inline-block;
+            font-style: normal;
+            transform: translateY(115%);
+            animation: riseIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .loader-title .lt:nth-child(1) i { animation-delay: 0.10s; }
+        .loader-title .lt:nth-child(2) i { animation-delay: 0.20s; }
+        .loader-title .lt:nth-child(3) i { animation-delay: 0.30s; }
+        .loader-title .lt:nth-child(4) i { animation-delay: 0.40s; }
+
+        @keyframes riseIn {
+            to { transform: translateY(0); }
+        }
+
+        .loader-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            max-width: 520px;
+        }
+
+        .ls {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--terrain);
+            opacity: 0.35;
+            transform: translateX(-8px);
+            transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
+        }
+
+        .ls.working {
+            opacity: 1;
+            transform: translateX(0);
+            color: var(--deep);
+        }
+
+        .ls.done-step {
+            opacity: 0.75;
+            transform: translateX(0);
+            color: var(--forest);
+        }
+
+        .ls-idx { font-size: 0.65rem; color: var(--terrain); }
+
+        .ls-name { text-transform: uppercase; }
+        .ls-name em {
+            font-style: normal;
+            margin-left: 0.6rem;
+            color: var(--terrain);
+            font-size: 0.7rem;
+        }
+
+        .ls-status {
+            margin-left: auto;
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+        }
+
+        .ls.working .ls-status { animation: flicker 0.7s infinite; }
+        .ls.done-step .ls-status { color: var(--forest); }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            20% { opacity: 0.3; }
+            40% { opacity: 1; }
+            60% { opacity: 0.5; }
+            80% { opacity: 1; }
+        }
+
+        .loader-bottom {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .loader-bar {
+            flex: 1;
+            height: 2px;
+            background: rgba(22,27,19,0.15);
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+
+        .loader-bar-fill {
             position: absolute;
             top: 0; left: 0;
             height: 100%;
             width: 0%;
-            background: var(--trail);
-            transition: width 0.2s ease;
+            background: var(--deep);
         }
-        
-        .loader-percent {
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.4);
-            margin-top: 1rem;
-            letter-spacing: 2px;
+
+        .loader-count {
+            font-family: var(--display);
+            font-size: clamp(3rem, 8vw, 6rem);
+            line-height: 0.9;
+            color: var(--deep);
+            font-variant-numeric: tabular-nums;
         }
-        
-        /* ===== 胶片颗粒纹理叠加 ===== */
+
+        /* ===== 胶片颗粒 ===== */
         .grain-overlay {
             position: fixed;
             inset: 0;
             z-index: 98;
             pointer-events: none;
-            opacity: 0.04;
+            opacity: 0.05;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
             background-repeat: repeat;
             background-size: 256px 256px;
             mix-blend-mode: overlay;
         }
-        
-        /* ===== 导航 ===== */
-        .nav {
+
+        /* ===== 顶部浅绿横条（San Rita header） ===== */
+        .topbar {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 100;
-            padding: 1.5rem 3rem;
+            background: var(--neon);
+            color: var(--deep);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 58px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, calc(100% - 14px) 100%, calc(100% - 28px) calc(100% - 10px), 0 calc(100% - 10px));
+            padding-bottom: 10px;
+            transform: translateY(-110%);
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
         }
-        
-        .nav-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
+
+        body.ready .topbar { transform: translateY(0); }
+
+        .brand {
+            font-family: var(--display);
+            font-size: 1.35rem;
+            letter-spacing: 0.04em;
+            color: var(--deep);
+            display: flex;
+            align-items: baseline;
+            gap: 0.7rem;
+            cursor: pointer;
+        }
+
+        .brand small {
+            font-family: var(--mono);
+            font-size: 0.62rem;
             letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            color: var(--forest);
         }
-        
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 1.4rem;
             list-style: none;
         }
-        
+
         .nav-links a {
-            font-size: 0.8rem;
-            letter-spacing: 1px;
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.7);
+            color: var(--deep);
             text-decoration: none;
-            transition: color 0.3s;
+            position: relative;
+            padding: 2px 0;
         }
-        
-        .nav-links a:hover {
-            color: var(--trail);
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0; height: 2px;
+            background: var(--deep);
+            transition: width 0.3s ease;
         }
-        
-        /* ===== 内容层 ===== */
+
+        .nav-links a:hover::after { width: 100%; }
+
+        .topbar-clock {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 1px;
+            color: var(--forest);
+        }
+
+        /* ===== Hero 覆盖层（独立主页） ===== */
+        .hero-ui {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            pointer-events: none;
+            transition: opacity 0.7s ease, visibility 0.7s;
+        }
+
+        .hero-ui.exited {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .hero-tag {
+            position: absolute;
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--neon);
+            text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+        }
+
+        .hero-tag.t1 { top: 96px; left: 2rem; }
+        .hero-tag.t2 { top: 96px; right: 2rem; text-align: right; color: var(--icy); opacity: 0.85; }
+        .hero-tag.t3 { bottom: 7.5rem; right: 2rem; text-align: right; color: var(--icy); opacity: 0.7; }
+
+        .hero-title-wrap {
+            position: absolute;
+            left: 2rem;
+            bottom: 5.2rem;
+            max-width: 90vw;
+        }
+
+        .hero-kicker {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--neon);
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-title {
+            font-family: var(--display);
+            font-weight: 900;
+            font-size: clamp(3rem, 9.5vw, 7.2rem);
+            line-height: 1.04;
+            letter-spacing: 0.02em;
+            color: var(--neon);
+            text-shadow: 0 4px 40px rgba(22,27,19,0.65);
+        }
+
+        .hero-title .ht-line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title .ht-inner {
+            display: inline-block;
+            transform: translateY(112%);
+            transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        body.ready .hero-title .ht-line:nth-child(1) .ht-inner { transition-delay: 0.55s; transform: translateY(0); }
+        body.ready .hero-title .ht-line:nth-child(2) .ht-inner { transition-delay: 0.70s; transform: translateY(0); }
+
+        .hero-ui.exited .hero-title .ht-inner { transform: translateY(112%); transition-delay: 0s; }
+
+        .hero-ghost {
+            position: absolute;
+            right: -1rem;
+            bottom: 4.6rem;
+            font-family: var(--display);
+            font-size: clamp(4rem, 13vw, 10rem);
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(226,255,204,0.18);
+            letter-spacing: 0.05em;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* 城市图例（右下，等价于 POI 的文字入口） */
+        .hero-legend {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            pointer-events: auto;
+        }
+
+        .hero-legend button {
+            display: flex;
+            align-items: baseline;
+            gap: 0.7rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(221,226,228,0.65);
+            padding: 2px 0;
+            transition: color 0.25s, transform 0.25s;
+            text-align: left;
+        }
+
+        .hero-legend button .lg-idx { font-size: 0.6rem; color: var(--terrain); }
+
+        .hero-legend button:hover {
+            color: var(--neon);
+            transform: translateX(6px);
+        }
+
+        /* Scroll to explore 按钮 */
+        .scroll-prompt {
+            position: absolute;
+            bottom: 1.6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .scroll-prompt-text {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--neon);
+            transition: letter-spacing 0.3s ease;
+        }
+
+        .scroll-prompt:hover .scroll-prompt-text { letter-spacing: 5px; }
+
+        .scroll-prompt-line {
+            width: 2px;
+            height: 44px;
+            background: repeating-linear-gradient(to bottom, var(--neon) 0 6px, transparent 6px 11px);
+            animation: dashDrop 1.6s linear infinite;
+        }
+
+        @keyframes dashDrop {
+            0% { clip-path: inset(0 0 100% 0); }
+            50% { clip-path: inset(0 0 0 0); }
+            100% { clip-path: inset(100% 0 0 0); }
+        }
+
+        /* ===== 地图 POI ===== */
+        .poi {
+            pointer-events: auto;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            transition: opacity 0.4s ease;
+        }
+
+        .poi-tag {
+            display: flex;
+            align-items: baseline;
+            gap: 0.45rem;
+            background: var(--deep);
+            color: var(--neon);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            padding: 4px 9px;
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+            white-space: nowrap;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+            transition: background 0.25s, color 0.25s;
+        }
+
+        .poi-tag .poi-idx { font-size: 0.58rem; color: var(--terrain); }
+
+        .poi-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--deep);
+            border: 2.5px solid var(--neon);
+            box-shadow: 0 0 0 0 rgba(226,255,204,0.4);
+            animation: poiPulse 2.4s ease-out infinite;
+            transition: background 0.25s, transform 0.25s;
+        }
+
+        .poi:hover .poi-dot {
+            background: var(--neon);
+            transform: scale(1.3);
+        }
+
+        .poi:hover .poi-tag {
+            background: var(--neon);
+            color: var(--deep);
+        }
+
+        .poi:hover .poi-tag .poi-idx { color: var(--forest); }
+
+        @keyframes poiPulse {
+            0% { box-shadow: 0 0 0 0 rgba(226,255,204,0.45); }
+            70% { box-shadow: 0 0 0 12px rgba(226,255,204,0); }
+            100% { box-shadow: 0 0 0 0 rgba(226,255,204,0); }
+        }
+
+        /* ===== 内容层（城市页） ===== */
         .content-layer {
             position: relative;
             z-index: 10;
             pointer-events: none;
         }
-        
-        .content-layer > * {
-            pointer-events: auto;
-        }
-        
+
+        .content-layer > * { pointer-events: auto; }
+
         .city-panel {
             min-height: 100vh;
             display: flex;
@@ -210,71 +570,72 @@
             padding: 0 5vw;
             position: relative;
         }
-        
+
         .city-panel:nth-child(odd) { justify-content: flex-start; }
         .city-panel:nth-child(even) { justify-content: flex-end; }
-        
+
         .city-card {
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 3rem;
-            max-width: 480px;
-            color: #fff;
+            background: rgba(45, 51, 41, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 2.6rem 2.8rem;
+            max-width: 500px;
+            color: var(--icy);
             opacity: 0;
             transform: translateY(40px);
+            clip-path: var(--cut);
+            border-left: 3px solid var(--neon);
         }
-        
+
         .city-number {
-            font-family: 'Playfair Display', serif;
-            font-size: 4rem;
-            font-weight: 700;
-            color: rgba(255,255,255,0.15);
+            font-family: var(--display);
+            font-size: 4.2rem;
             line-height: 1;
-            margin-bottom: 0.5rem;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(226,255,204,0.35);
+            margin-bottom: 0.4rem;
         }
-        
+
         .city-label {
-            font-size: 0.75rem;
+            font-family: var(--mono);
+            font-size: 0.68rem;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: var(--trail);
-            margin-bottom: 1rem;
+            color: var(--neon);
+            margin-bottom: 0.9rem;
         }
-        
+
         .city-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-            color: #fff;
+            font-family: var(--display);
+            font-weight: 900;
+            font-size: 2.6rem;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.4rem;
+            line-height: 1.15;
+            color: var(--icy);
         }
-        
+
         .city-subtitle {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 1.5rem;
-            font-style: italic;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--terrain);
+            margin-bottom: 1.4rem;
         }
-        
+
         .city-desc {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: rgba(255,255,255,0.85);
+            font-size: 0.92rem;
+            line-height: 1.85;
+            color: rgba(221,226,228,0.88);
         }
-        
+
         .city-divider {
-            width: 40px;
-            height: 1px;
-            background: var(--trail);
-            margin: 1.5rem 0;
+            width: 44px;
+            height: 2px;
+            background: var(--neon);
+            margin: 1.4rem 0;
         }
-        
-        #hero .city-card {
-            background: rgba(0, 0, 0, 0.4);
-        }
-        
+
+        /* ===== 终章：星辰大海 ===== */
         .footer-panel {
             min-height: 100vh;
             display: flex;
@@ -284,154 +645,153 @@
             position: relative;
             z-index: 10;
         }
-        
+
         .footer-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 60px rgba(74,103,65,0.5);
+            font-family: var(--display);
+            font-weight: 900;
+            font-size: clamp(3.4rem, 10vw, 7rem);
+            letter-spacing: 0.04em;
+            color: var(--neon);
+            margin-bottom: 1.2rem;
+            text-shadow: 0 0 80px rgba(226,255,204,0.35);
             opacity: 0;
         }
-        
+
         .footer-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.7);
-            max-width: 500px;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: rgba(221,226,228,0.75);
+            max-width: 540px;
             margin: 0 auto;
-            line-height: 1.8;
+            line-height: 2;
             opacity: 0;
         }
-        
-        .scroll-hint {
-            position: fixed;
-            bottom: 3rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
-            text-align: center;
-            transition: opacity 0.5s;
-            pointer-events: none;
-        }
-        
-        .scroll-hint.hidden {
-            opacity: 0;
-        }
-        
-        .scroll-hint-text {
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 0.5rem;
-        }
-        
-        .scroll-hint-line {
-            width: 1px;
-            height: 40px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
-            margin: 0 auto;
-            animation: scrollPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes scrollPulse {
-            0%, 100% { transform: scaleY(1); opacity: 0.6; }
-            50% { transform: scaleY(1.3); opacity: 1; }
-        }
-        
+
+        /* ===== 坐标 ===== */
         .coordinates {
             position: fixed;
-            bottom: 2rem;
+            bottom: 1.6rem;
             left: 2rem;
             z-index: 50;
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: rgba(221,226,228,0.55);
+            letter-spacing: 1.5px;
             pointer-events: none;
         }
-        
+
         @media (max-width: 768px) {
-            .nav { padding: 1rem; }
+            .topbar { padding: 0 1rem; }
             .nav-links { display: none; }
-            .city-card { padding: 2rem; max-width: 90vw; }
-            .city-title { font-size: 1.8rem; }
-            .footer-title { font-size: 3rem; }
+            .hero-legend { display: none; }
+            .hero-tag.t2, .hero-tag.t3 { display: none; }
+            .city-card { padding: 1.8rem; max-width: 90vw; }
+            .city-title { font-size: 1.9rem; }
+            .loader { padding: 1.5rem; }
+            .hero-title-wrap { left: 1.2rem; bottom: 6rem; }
         }
     </style>
 </head>
 <body>
     <!-- 深空底色 -->
     <div class="starfield"></div>
-    
+
     <!-- Canvas 银河 -->
     <canvas id="galaxyCanvas"></canvas>
-    
+
     <!-- Mapbox 地图 -->
     <div id="map"></div>
-    
+    <div class="map-tint"></div>
+
     <!-- 加载动画 -->
     <div class="loader" id="loader">
-        <div class="loader-brand">徐振洋</div>
-        <div class="loader-steps" id="loaderSteps">
-            <div class="loader-step active" data-step="0">正在连接遥感卫星...</div>
-            <div class="loader-step" data-step="1">接收地形数据...</div>
-            <div class="loader-step" data-step="2">解析城市肌理...</div>
-            <div class="loader-step" data-step="3">校准空间坐标...</div>
-            <div class="loader-step" data-step="4">准备就绪</div>
+        <div class="loader-top">
+            <span>XU ZHENYANG</span>
+            <span>PERSONAL ATLAS — V2.0</span>
         </div>
-        <div class="loader-progress">
-            <div class="loader-progress-bar" id="loaderBar"></div>
+        <div class="loader-center">
+            <div class="loader-kicker">Loading Personal Atlas</div>
+            <h1 class="loader-title">
+                <span class="lt"><i>空</i></span><span class="lt"><i>间</i></span><span class="lt"><i>之</i></span><span class="lt"><i>旅</i></span>
+            </h1>
+            <ul class="loader-steps" id="loaderSteps">
+                <li class="ls"><span class="ls-idx">01</span><span class="ls-name">Connecting Satellite<em>连接遥感卫星</em></span><span class="ls-status">STANDBY</span></li>
+                <li class="ls"><span class="ls-idx">02</span><span class="ls-name">Receiving Terrain<em>接收地形数据</em></span><span class="ls-status">STANDBY</span></li>
+                <li class="ls"><span class="ls-idx">03</span><span class="ls-name">Mapping Cities<em>解析城市肌理</em></span><span class="ls-status">STANDBY</span></li>
+                <li class="ls"><span class="ls-idx">04</span><span class="ls-name">Calibrating Coords<em>校准空间坐标</em></span><span class="ls-status">STANDBY</span></li>
+                <li class="ls"><span class="ls-idx">05</span><span class="ls-name">Terraforming<em>地形改造</em></span><span class="ls-status">STANDBY</span></li>
+            </ul>
         </div>
-        <div class="loader-percent" id="loaderPercent">0%</div>
+        <div class="loader-bottom">
+            <div class="loader-bar"><div class="loader-bar-fill" id="loaderBar"></div></div>
+            <div class="loader-count" id="loaderCount">000</div>
+        </div>
     </div>
-    
-    <!-- 胶片颗粒纹理叠加 -->
+
+    <!-- 胶片颗粒 -->
     <div class="grain-overlay"></div>
-    
-    <!-- 导航 -->
-    <nav class="nav">
-        <div class="nav-brand">徐振洋</div>
-        <ul class="nav-links">
-            <li><a href="#tongxiang">桐乡</a></li>
-            <li><a href="#chengdu">成都</a></li>
-            <li><a href="#hefei">合肥</a></li>
-            <li><a href="#hongkong">香港</a></li>
-            <li><a href="#beijing">北京</a></li>
-            <li><a href="#shanghai">上海</a></li>
-        </ul>
-    </nav>
-    
-    <!-- 坐标 -->
-    <div class="coordinates" id="coords">30.63°N, 120.56°E</div>
-    
-    <!-- 滚动提示 -->
-    <div class="scroll-hint" id="scrollHint">
-        <div class="scroll-hint-text">Scroll to explore</div>
-        <div class="scroll-hint-line"></div>
+
+    <!-- 顶部浅绿横条 -->
+    <header class="topbar">
+        <div class="brand" id="brandHome">徐振洋<small>PERSONAL ATLAS</small></div>
+        <div class="topbar-right">
+            <ul class="nav-links">
+                <li><a href="#tongxiang">桐乡</a></li>
+                <li><a href="#chengdu">成都</a></li>
+                <li><a href="#hefei">合肥</a></li>
+                <li><a href="#hongkong">香港</a></li>
+                <li><a href="#beijing">北京</a></li>
+                <li><a href="#shanghai">上海</a></li>
+            </ul>
+            <div class="topbar-clock" id="topbarClock">--:--:-- GMT+8</div>
+        </div>
+    </header>
+
+    <!-- Hero 覆盖层 -->
+    <div class="hero-ui" id="heroUI">
+        <div class="hero-tag t1">城乡规划 × AI 产品</div>
+        <div class="hero-tag t2">EST. 2020 · 桐乡<br>HAND-CRAFTED DIGITAL ATLAS</div>
+        <div class="hero-tag t3">6 CITIES · 1 TRAIL<br>REPUBLIC OF CURIOUS MINDS</div>
+
+        <div class="hero-legend" id="heroLegend">
+            <button data-target="tongxiang"><span class="lg-idx">01</span>桐乡 TONGXIANG</button>
+            <button data-target="chengdu"><span class="lg-idx">02</span>成都 CHENGDU</button>
+            <button data-target="hefei"><span class="lg-idx">03</span>合肥 HEFEI</button>
+            <button data-target="hongkong"><span class="lg-idx">04</span>香港 HONG KONG</button>
+            <button data-target="beijing"><span class="lg-idx">05</span>北京 BEIJING</button>
+            <button data-target="shanghai"><span class="lg-idx">06</span>上海 SHANGHAI</button>
+        </div>
+
+        <div class="hero-title-wrap">
+            <div class="hero-kicker">A Journey Across Space</div>
+            <h1 class="hero-title">
+                <span class="ht-line"><span class="ht-inner">从桐乡</span></span>
+                <span class="ht-line"><span class="ht-inner">到星辰大海</span></span>
+            </h1>
+        </div>
+
+        <div class="hero-ghost">JOURNEY</div>
+
+        <button class="scroll-prompt" id="scrollPrompt">
+            <span class="scroll-prompt-text">Scroll to Explore</span>
+            <span class="scroll-prompt-line"></span>
+        </button>
     </div>
-    
+
+    <!-- 坐标 -->
+    <div class="coordinates" id="coords">32.20°N, 108.80°E</div>
+
     <!-- 内容层 -->
     <div class="content-layer">
-        <!-- 开场 -->
-        <section class="city-panel" id="hero" style="min-height: 100vh;">
-            <div class="city-card">
-                <div class="city-label">空间之旅</div>
-                <h1 class="city-title" style="font-size: 3rem;">从桐乡<br>到星辰大海</h1>
-                <div class="city-divider"></div>
-                <p class="city-desc">
-                    一条穿越中国的成长轨迹，从江南水乡到天府之国，从科技之城到东方之珠，最终抵达首都。
-                    滚动页面，开始你的探索之旅。
-                </p>
-            </div>
-        </section>
-        
+        <!-- Hero 占位（相机路径起点） -->
+        <section class="city-panel" id="hero" style="min-height: 100vh; pointer-events: none;"></section>
+
         <!-- 桐乡 -->
         <section class="city-panel" id="tongxiang">
             <div class="city-card">
                 <div class="city-number">01</div>
-                <div class="city-label">第一站</div>
+                <div class="city-label">第一站 · Origin</div>
                 <h2 class="city-title">浙江 · 桐乡</h2>
                 <div class="city-subtitle">起点 · 家乡与启蒙</div>
                 <div class="city-divider"></div>
@@ -442,12 +802,12 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 成都 -->
         <section class="city-panel" id="chengdu">
             <div class="city-card">
                 <div class="city-number">02</div>
-                <div class="city-label">第二站</div>
+                <div class="city-label">第二站 · University</div>
                 <h2 class="city-title">四川 · 成都</h2>
                 <div class="city-subtitle">2020-2025 · 本科阶段</div>
                 <div class="city-divider"></div>
@@ -458,12 +818,12 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 合肥 -->
         <section class="city-panel" id="hefei">
             <div class="city-card">
                 <div class="city-number">03</div>
-                <div class="city-label">第三站</div>
+                <div class="city-label">第三站 · iFLYTEK</div>
                 <h2 class="city-title">安徽 · 合肥</h2>
                 <div class="city-subtitle">2025 · 科大讯飞</div>
                 <div class="city-divider"></div>
@@ -474,12 +834,12 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 香港 -->
         <section class="city-panel" id="hongkong">
             <div class="city-card">
                 <div class="city-number">04</div>
-                <div class="city-label">第四站</div>
+                <div class="city-label">第四站 · HKU</div>
                 <h2 class="city-title">香港</h2>
                 <div class="city-subtitle">2025-2026 · 硕士研究生</div>
                 <div class="city-divider"></div>
@@ -490,12 +850,12 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 北京 -->
         <section class="city-panel" id="beijing">
             <div class="city-card">
                 <div class="city-number">05</div>
-                <div class="city-label">第五站</div>
+                <div class="city-label">第五站 · Product</div>
                 <h2 class="city-title">北京</h2>
                 <div class="city-subtitle">2025-2026 · 产品实习</div>
                 <div class="city-divider"></div>
@@ -506,12 +866,12 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 上海 -->
         <section class="city-panel" id="shanghai">
             <div class="city-card">
                 <div class="city-number">06</div>
-                <div class="city-label">第六站</div>
+                <div class="city-label">第六站 · Future</div>
                 <h2 class="city-title">上海</h2>
                 <div class="city-subtitle">2026 · 未来展望</div>
                 <div class="city-divider"></div>
@@ -522,7 +882,7 @@
                 </p>
             </div>
         </section>
-        
+
         <!-- 星辰大海 -->
         <section class="footer-panel" id="stars">
             <div>
@@ -541,6 +901,6 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="galaxy-canvas.js?v=18"></script>
-    <script src="script.js?v=14"></script>
+    <script src="script.js?v=15"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
-// ===== Mapbox GL JS 3D 地形 + 滚动驱动相机 + 地球淡出 + 银河淡入 =====
+// ===== 空间之旅 V2：San Rita 式 Hero 门禁 + POI 徒步路径 + 滚动驱动相机 =====
 
 document.addEventListener('DOMContentLoaded', () => {
     gsap.registerPlugin(ScrollTrigger);
-    
+
     // ===== Mapbox 配置 =====
     const _p='p'+'k'+'.';
     const _a='eyJ1IjoiMTM3NTA3NTU4ND';
@@ -10,21 +10,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const _c='UzYTNrcDR3d2x2bDkxMyJ9.E';
     const _d='pBlasK31iSMEVRflVJwAg';
     mapboxgl.accessToken=_p+_a+_b+_c+_d;
-    
+
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [105, 35],
-        zoom: 4,
+        center: [108.8, 32.2],
+        zoom: 3.3,
         pitch: 0,
         bearing: 0,
         projection: 'globe',
         antialias: true,
-        attributionControl: false
+        attributionControl: false,
+        interactive: false
     });
-    
-    // 3D 地形
+
+    // ===== 城市数据 =====
+    const CITIES = [
+        { id: 'tongxiang', num: '01', label: '桐乡', en: 'TONGXIANG', center: [120.56, 30.63], tagDx: '-58%' },
+        { id: 'chengdu',   num: '02', label: '成都', en: 'CHENGDU',   center: [104.06, 30.67], tagDx: '-15%' },
+        { id: 'hefei',     num: '03', label: '合肥', en: 'HEFEI',     center: [117.23, 31.82], tagDx: '-62%' },
+        { id: 'hongkong',  num: '04', label: '香港', en: 'HONG KONG', center: [114.17, 22.32], tagDx: '-20%' },
+        { id: 'beijing',   num: '05', label: '北京', en: 'BEIJING',   center: [116.40, 39.90], tagDx: '-15%' },
+        { id: 'shanghai',  num: '06', label: '上海', en: 'SHANGHAI',  center: [121.47, 31.23], tagDx: '22%' },
+    ];
+
+    // ===== 徒步路径：在城市之间生成蜿蜒小径 =====
+    function makeTrail(points) {
+        const pts = [];
+        for (let i = 0; i < points.length - 1; i++) {
+            const [x1, y1] = points[i], [x2, y2] = points[i + 1];
+            const dx = x2 - x1, dy = y2 - y1;
+            const len = Math.hypot(dx, dy);
+            const nx = -dy / len, ny = dx / len;
+            const steps = 16;
+            for (let s = 0; s < steps; s++) {
+                const t = s / steps;
+                const taper = Math.sin(t * Math.PI); // 两端收拢到城市点
+                const wob = (Math.sin(t * Math.PI * 3 + i * 1.7) * 0.10 +
+                             Math.sin(t * Math.PI * 7 + i * 0.9) * 0.045) * len * taper;
+                pts.push([x1 + dx * t + nx * wob, y1 + dy * t + ny * wob]);
+            }
+        }
+        pts.push(points[points.length - 1]);
+        return pts;
+    }
+
+    const trailCoords = makeTrail(CITIES.map(c => c.center));
+
+    let trailReady = false;
+    const poiMarkers = [];
+
     map.on('load', () => {
+        // 3D 地形
         try {
             map.addSource('mapbox-dem', {
                 type: 'raster-dem',
@@ -36,8 +73,63 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.warn('Terrain load failed:', e);
         }
+
+        // 徒步路径（深色描边 + 荧光虚线）
+        map.addSource('trail', {
+            type: 'geojson',
+            data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: trailCoords } }
+        });
+        map.addLayer({
+            id: 'trail-casing',
+            type: 'line',
+            source: 'trail',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#161b13', 'line-width': 5, 'line-opacity': 0, 'line-dasharray': [2.5, 1.8] }
+        });
+        map.addLayer({
+            id: 'trail-line',
+            type: 'line',
+            source: 'trail',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#e2ffcc', 'line-width': 2.2, 'line-opacity': 0, 'line-dasharray': [2.5, 1.8] }
+        });
+        trailReady = true;
     });
-    
+
+    function addPois() {
+        CITIES.forEach((c, i) => {
+            const el = document.createElement('div');
+            el.className = 'poi';
+            el.style.opacity = '0';
+            el.innerHTML = `
+                <div class="poi-tag" style="transform:translateX(${c.tagDx})"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
+                <div class="poi-dot"></div>`;
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                enterWorld(c.id);
+            });
+            const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+                .setLngLat(c.center)
+                .addTo(map);
+            poiMarkers.push(marker);
+            // 错峰弹入
+            gsap.fromTo(el,
+                { opacity: 0, scale: 0.4 },
+                { opacity: 1, scale: 1, duration: 0.6, delay: 0.9 + i * 0.12, ease: 'back.out(2.2)',
+                  onStart: () => { el.style.opacity = ''; } });
+        });
+    }
+
+    function setTrailOpacity(v) {
+        if (!trailReady) return;
+        map.setPaintProperty('trail-casing', 'line-opacity', v * 0.55);
+        map.setPaintProperty('trail-line', 'line-opacity', v * 0.95);
+    }
+
+    function setPoiOpacity(v) {
+        poiMarkers.forEach(m => { m.getElement().style.opacity = v; m.getElement().style.pointerEvents = v > 0.3 ? 'auto' : 'none'; });
+    }
+
     // ===== Lenis 平滑滚动 =====
     const lenis = new Lenis({
         duration: 1.2,
@@ -48,30 +140,93 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelMultiplier: 1,
         touchMultiplier: 2,
     });
-    
+
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
-    
-    // ===== 相机路径（滚动分段） =====
+
+    // 初始：锁定滚动（hero 门禁）
+    lenis.stop();
+
+    // ===== 相机路径 =====
     const cameraPath = [
-        { name: 'hero',      center: [105.0, 35.0], zoom: 4.0,  pitch: 0,  bearing: 0 },
+        { name: 'hero',      center: [108.8, 32.2],  zoom: 3.3,  pitch: 0,  bearing: 0 },
         { name: 'tongxiang', center: [120.56, 30.63], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'chengdu',   center: [104.06, 30.67], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'shanghai',  center: [121.47, 31.23], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'stars',     center: [105.0, 35.0], zoom: 0.0,  pitch: 0,  bearing: 0 },
+        { name: 'stars',     center: [105.0, 35.0],   zoom: 0.0,  pitch: 0,  bearing: 0 },
     ];
-    
+
     const coordsEl = document.getElementById('coords');
-    const scrollHint = document.getElementById('scrollHint');
+    const heroUI = document.getElementById('heroUI');
     const mapEl = document.getElementById('map');
-        
+
     function lerp(a, b, t) { return a + (b - a) * t; }
-    
-    // ===== 滚动驱动相机 + 地球淡出 + 银河淡入 =====
+
+    let entered = false;   // 是否已通过 hero 门禁
+    let entering = false;  // 过渡中
+
+    // ===== Hero 进入动画（滚轮累计 / 点击 / POI 直达） =====
+    function enterWorld(targetId) {
+        if (entered) {
+            if (targetId) lenis.scrollTo('#' + targetId, { duration: 2.0 });
+            return;
+        }
+        if (entering) return;
+        entering = true;
+        entered = true;
+
+        heroUI.classList.add('exited');
+        lenis.start();
+
+        setTimeout(() => {
+            entering = false;
+            if (targetId) {
+                lenis.scrollTo('#' + targetId, { duration: 2.4 });
+            }
+        }, 700);
+    }
+
+    // 滚轮累计阈值触发
+    let wheelAcc = 0, lastWheel = 0;
+    window.addEventListener('wheel', (e) => {
+        if (entered) return;
+        const now = performance.now();
+        if (now - lastWheel > 400) wheelAcc = 0;
+        lastWheel = now;
+        if (e.deltaY > 0) {
+            wheelAcc += e.deltaY;
+            if (wheelAcc > 450) enterWorld();
+        } else {
+            wheelAcc = Math.max(0, wheelAcc + e.deltaY);
+        }
+    }, { passive: true });
+
+    // 触屏滑动触发
+    let touchStartY = null;
+    window.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+        if (entered || touchStartY === null) return;
+        if (touchStartY - e.touches[0].clientY > 100) enterWorld();
+    }, { passive: true });
+
+    // Scroll to explore 按钮
+    document.getElementById('scrollPrompt').addEventListener('click', () => enterWorld());
+
+    // 图例点击直达
+    document.querySelectorAll('#heroLegend button').forEach(btn => {
+        btn.addEventListener('click', () => enterWorld(btn.dataset.target));
+    });
+
+    // 品牌回首页
+    document.getElementById('brandHome').addEventListener('click', () => {
+        lenis.scrollTo(0, { duration: 1.8 });
+    });
+
+    // ===== 滚动驱动相机 + POI/路径显隐 + 银河淡入 =====
     function setupScrollCamera() {
         ScrollTrigger.create({
             trigger: '.content-layer',
@@ -82,10 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const total = cameraPath.length - 1;
                 const index = Math.min(Math.floor(progress * total), total - 1);
                 const localProgress = (progress * total) - index;
-                
+
                 const from = cameraPath[index];
                 const to = cameraPath[index + 1];
-                
+
                 const center = [
                     lerp(from.center[0], to.center[0], localProgress),
                     lerp(from.center[1], to.center[1], localProgress)
@@ -93,21 +248,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const zoom = lerp(from.zoom, to.zoom, localProgress);
                 const pitch = lerp(from.pitch, to.pitch, localProgress);
                 const bearing = lerp(from.bearing, to.bearing, localProgress);
-                
+
                 map.jumpTo({ center, zoom, pitch, bearing });
-                
+
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
-                scrollHint.classList.toggle('hidden', progress > 0.02);
-                
-                // 地球淡出 + Three.js 银河飞入（从上海段开始）
+
+                // 回到顶部时 hero UI 重新出现
+                heroUI.classList.toggle('exited', progress > 0.012);
+
+                // POI 与徒步路径只在概览（低 zoom）可见
+                const overview = Math.max(0, Math.min(1, (5.2 - zoom) / 1.4));
+                setTrailOpacity(overview);
+                setPoiOpacity(overview);
+
+                // 地球淡出 + 银河飞入（上海段之后）
                 if (index >= 6) {
                     const fade = Math.min(1, localProgress * 2);
                     mapEl.style.opacity = 1 - fade;
                     if (window.galaxyCanvas) {
                         window.galaxyCanvas.setOpacity(fade);
-                        // 相机从远处飞入：z 从 2000 降到 400
                         window.galaxyCanvas.setCameraZ(2000 - fade * 1600);
-                        // 旋转加速
                         window.galaxyCanvas.setRotSpeed(0.0002 + fade * 0.001);
                     }
                 } else {
@@ -121,10 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
-    // ===== 城市卡片淡入动画 =====
+
+    // ===== 城市卡片入场动画 =====
     gsap.utils.toArray('.city-card').forEach(card => {
-        gsap.fromTo(card, 
+        gsap.fromTo(card,
             { opacity: 0, y: 50 },
             {
                 opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
@@ -136,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
     });
-    
+
     // ===== 星辰大海标题动画 =====
     gsap.fromTo('#starsTitle',
         { opacity: 0, scale: 0.9 },
@@ -150,54 +310,89 @@ document.addEventListener('DOMContentLoaded', () => {
           scrollTrigger: { trigger: '#stars', start: 'top 60%', toggleActions: 'play none none reverse' }
         }
     );
-    
+
     // ===== 导航平滑滚动 =====
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const target = document.querySelector(link.getAttribute('href'));
+            const href = link.getAttribute('href');
+            if (!entered) { enterWorld(href.slice(1)); return; }
+            const target = document.querySelector(href);
             if (target) lenis.scrollTo(target, { offset: 0, duration: 1.5 });
         });
     });
-    
-    // ===== 加载动画 =====
+
+    // ===== 顶栏时钟（GMT+8） =====
+    const clockEl = document.getElementById('topbarClock');
+    function tickClock() {
+        const now = new Date(Date.now() + (8 * 60 + new Date().getTimezoneOffset()) * 60000);
+        const p = (n) => String(n).padStart(2, '0');
+        clockEl.textContent = `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())} GMT+8`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    // ===== 加载动画序列 =====
     const loader = document.getElementById('loader');
     const loaderBar = document.getElementById('loaderBar');
-    const loaderPercent = document.getElementById('loaderPercent');
-    const loaderSteps = document.querySelectorAll('.loader-step');
-    
+    const loaderCount = document.getElementById('loaderCount');
+    const loaderSteps = Array.from(document.querySelectorAll('#loaderSteps .ls'));
+
     let loadProgress = 0;
-    const stepThresholds = [0, 20, 45, 70, 90];
-    const totalLoadTime = 2200;
-    const interval = 30;
-    
+    const stepThresholds = [6, 24, 46, 66, 84];
+    const totalLoadTime = 2800;
+    const interval = 40;
+
     const timer = setInterval(() => {
         loadProgress += (100 / (totalLoadTime / interval));
         if (loadProgress >= 100) {
             loadProgress = 100;
             clearInterval(timer);
+
+            loaderSteps.forEach(s => {
+                s.classList.remove('working');
+                s.classList.add('done-step');
+                s.querySelector('.ls-status').textContent = 'DONE';
+            });
+            loaderSteps[loaderSteps.length - 1].querySelector('.ls-status').textContent = 'ACTIVATED';
+
             setTimeout(() => {
-                loader.classList.add('hidden');
-                gsap.fromTo('#hero .city-card',
-                    { opacity: 0, y: 40 },
-                    { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
-                );
+                loader.classList.add('done');
+                document.body.classList.add('ready');
                 setupScrollCamera();
+                addPois();
+                // 徒步路径淡入（首次滚动前 ScrollTrigger 不会触发，需显式初始化）
+                const trailFade = { v: 0 };
+                gsap.to(trailFade, {
+                    v: 1, duration: 1.8, delay: 0.5, ease: 'power2.out',
+                    onUpdate: () => setTrailOpacity(trailFade.v)
+                });
                 if (window.galaxyCanvas) window.galaxyCanvas.init();
-            }, 300);
+                setTimeout(() => { loader.style.display = 'none'; }, 1000);
+            }, 450);
         }
-        
+
         loaderBar.style.width = loadProgress + '%';
-        loaderPercent.textContent = Math.floor(loadProgress) + '%';
-        
+        loaderCount.textContent = String(Math.floor(loadProgress)).padStart(3, '0');
+
         loaderSteps.forEach((step, i) => {
+            const statusEl = step.querySelector('.ls-status');
             if (loadProgress >= stepThresholds[i]) {
-                loaderSteps.forEach(s => s.classList.remove('active'));
-                step.classList.add('active');
+                if (!step.classList.contains('working') && !step.classList.contains('done-step')) {
+                    loaderSteps.forEach((s, j) => {
+                        if (j < i && s.classList.contains('working')) {
+                            s.classList.remove('working');
+                            s.classList.add('done-step');
+                            s.querySelector('.ls-status').textContent = 'DONE';
+                        }
+                    });
+                    step.classList.add('working');
+                    statusEl.textContent = 'WORKING';
+                }
             }
         });
     }, interval);
-    
+
     // ===== 窗口 resize 刷新 =====
     let resizeTimer;
     window.addEventListener('resize', () => {
