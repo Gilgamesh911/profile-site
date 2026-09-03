@@ -11,11 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const _d='pBlasK31iSMEVRflVJwAg';
     mapboxgl.accessToken=_p+_a+_b+_c+_d;
 
+    // 移动端拉远 hero 视野，保证 6 个城市都入镜
+    const HERO_ZOOM = window.innerWidth < 768 ? 2.95 : 3.3;
+    const HERO_CENTER = window.innerWidth < 768 ? [110.5, 32.0] : [108.8, 32.2];
+
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/satellite-v9',
-        center: [108.8, 32.2],
-        zoom: 3.3,
+        center: HERO_CENTER,
+        zoom: HERO_ZOOM,
         pitch: 0,
         bearing: 0,
         projection: 'globe',
@@ -31,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'hefei',     num: '03', label: '合肥', en: 'HEFEI',     center: [117.23, 31.82], tagDx: '-62%' },
         { id: 'hongkong',  num: '04', label: '香港', en: 'HONG KONG', center: [114.17, 22.32], tagDx: '-20%' },
         { id: 'beijing',   num: '05', label: '北京', en: 'BEIJING',   center: [116.40, 39.90], tagDx: '-15%' },
-        { id: 'shanghai',  num: '06', label: '上海', en: 'SHANGHAI',  center: [121.47, 31.23], tagDx: '22%' },
+        { id: 'shanghai',  num: '06', label: '上海', en: 'SHANGHAI',  center: [121.47, 31.23], tagDx: '22%', tagDxMobile: '-15%' },
     ];
 
     // ===== 徒步路径：在城市之间生成蜿蜒小径 =====
@@ -105,11 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 标签放在点位下半边：挂在 dot 内部做绝对定位，避免覆盖 Mapbox 的 marker 定位
                 el.innerHTML = `
                     <div class="poi-dot" style="position:relative">
-                        <div class="poi-tag" style="position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
+                        <div class="poi-tag" style="position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);"><span class="poi-idx">${c.num}</span><span class="poi-name">${c.label}</span><span class="poi-en">· ${c.en}</span></div>
                     </div>`;
             } else {
+                const dx = (window.innerWidth < 768 && c.tagDxMobile) ? c.tagDxMobile : c.tagDx;
                 el.innerHTML = `
-                    <div class="poi-tag" style="transform:translateX(${c.tagDx});"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
+                    <div class="poi-tag" style="transform:translateX(${dx});"><span class="poi-idx">${c.num}</span><span class="poi-name">${c.label}</span><span class="poi-en">· ${c.en}</span></div>
                     <div class="poi-dot"></div>`;
             }
             el.addEventListener('click', (e) => {
@@ -172,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 相机路径 =====
     const cameraPath = [
-        { name: 'hero',      center: [108.8, 32.2],  zoom: 3.3,  pitch: 0,  bearing: 0 },
+        { name: 'hero',      center: HERO_CENTER,     zoom: HERO_ZOOM, pitch: 0, bearing: 0 },
         { name: 'tongxiang', center: [120.56, 30.63], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'chengdu',   center: [104.06, 30.67], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },

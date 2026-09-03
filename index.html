@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#161b13">
     <title>徐振洋 | 空间之旅</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -526,6 +529,8 @@
         }
 
         .poi-tag .poi-idx { font-size: 0.58rem; color: var(--terrain); }
+        .poi-tag .poi-name { margin-left: 0.1rem; }
+        .poi-tag .poi-en { margin-left: 0.35rem; opacity: 0.85; }
 
         .poi-dot {
             width: 15px;
@@ -683,15 +688,75 @@
             pointer-events: none;
         }
 
+        /* ===== 移动端安全视口高度（iOS 工具栏） ===== */
+        .city-panel { min-height: 100vh; min-height: 100svh; }
+        .footer-panel { min-height: 100vh; min-height: 100svh; }
+        #map { height: 100vh; height: 100dvh; }
+
+        /* ===== 移动端点按优化 ===== */
+        html { -webkit-text-size-adjust: 100%; }
+        body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .poi-dot { position: relative; }
+        .poi-dot::before {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+        }
+
+        /* ===== 移动端适配（iOS / Android） ===== */
         @media (max-width: 768px) {
-            .topbar { padding: 0 1rem; }
+            /* 顶栏 */
+            .topbar { padding: 0 1rem; height: 52px; }
+            .brand { font-size: 1.1rem; }
+            .brand small { font-size: 0.55rem; }
+            .topbar-clock { font-size: 0.6rem; }
             .nav-links { display: none; }
+
+            /* Hero */
             .hero-legend { display: none; }
             .hero-tag.t2, .hero-tag.t3 { display: none; }
-            .city-card { padding: 1.8rem; max-width: 90vw; }
-            .city-title { font-size: 1.9rem; }
-            .loader { padding: 1.5rem; }
-            .hero-title-wrap { left: 1.2rem; bottom: 6rem; }
+            .hero-tag.t1 { top: 76px; left: 1.2rem; font-size: 0.62rem; }
+            .hero-title-wrap { left: 1.2rem; bottom: 7rem; }
+            .hero-title { font-size: clamp(2.5rem, 12.5vw, 4rem); }
+            .hero-kicker { font-size: 0.62rem; letter-spacing: 3px; }
+            .hero-ghost { font-size: 4rem; right: 0; bottom: 8rem; -webkit-text-stroke-color: rgba(226,255,204,0.12); }
+            .scroll-prompt { bottom: 1.2rem; }
+            .scroll-prompt-line { height: 34px; }
+            .coordinates { display: none; }
+
+            /* POI：更小的标签 + 更大的触控区 */
+            .poi-tag { font-size: 0.62rem; padding: 4px 8px; letter-spacing: 1px; }
+            .poi-tag .poi-idx { font-size: 0.55rem; }
+            .poi-tag .poi-en { display: none; }
+            .poi-dot { width: 13px; height: 13px; border-width: 2px; }
+            .poi-dot::before { inset: -18px; }
+
+            /* 加载页 */
+            .loader { padding: 1.2rem; }
+            .loader-title { font-size: clamp(2.8rem, 15vw, 4.5rem); }
+            .loader-kicker { font-size: 0.62rem; letter-spacing: 3px; }
+            .ls { font-size: 0.66rem; gap: 0.6rem; }
+            .ls-name em { display: block; margin-left: 0; margin-top: 2px; font-size: 0.62rem; }
+            .ls-status { font-size: 0.6rem; }
+            .loader-count { font-size: 3rem; }
+
+            /* 城市卡片 */
+            .city-card { padding: 1.6rem 1.4rem; max-width: 88vw; }
+            .city-number { font-size: 3rem; }
+            .city-title { font-size: 1.7rem; }
+            .city-subtitle { font-size: 0.68rem; }
+            .city-desc { font-size: 0.85rem; line-height: 1.75; }
+            .footer-title { font-size: clamp(2.6rem, 14vw, 4rem); }
+            .footer-subtitle { font-size: 0.72rem; padding: 0 1.5rem; }
+        }
+
+        /* 小屏横屏时压缩 hero 标题 */
+        @media (max-height: 480px) and (max-width: 900px) {
+            .hero-title-wrap { bottom: 4.5rem; }
+            .hero-title { font-size: clamp(2rem, 9vw, 3.2rem); }
+            .hero-ghost { display: none; }
+            .scroll-prompt-line { height: 24px; }
         }
     </style>
 </head>
@@ -903,6 +968,6 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="galaxy-canvas.js?v=18"></script>
-    <script src="script.js?v=17"></script>
+    <script src="script.js?v=19"></script>
 </body>
 </html>
