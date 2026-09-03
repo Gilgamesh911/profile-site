@@ -67,8 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const coordsEl = document.getElementById('coords');
     const scrollHint = document.getElementById('scrollHint');
     const mapEl = document.getElementById('map');
-    const galaxyImage = document.getElementById('galaxyImage');
-    
+        
     function lerp(a, b, t) { return a + (b - a) * t; }
     
     // ===== 滚动驱动相机 + 地球淡出 + 银河淡入 =====
@@ -99,19 +98,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
                 scrollHint.classList.toggle('hidden', progress > 0.02);
                 
-                // 地球淡出 + 银河图片扑面而来
+                // 地球淡出 + Three.js 银河飞入
                 if (index >= 5) {
                     const fade = Math.min(1, localProgress * 2);
                     mapEl.style.opacity = 1 - fade;
-                    if (galaxyImage) {
-                        galaxyImage.style.opacity = fade;
-                        galaxyImage.style.transform = `scale(${0.3 + fade * 2.7})`;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(fade);
+                        // 相机从远处飞入：z 从 2000 降到 400
+                        window.galaxyCanvas.setCameraZ(2000 - fade * 1600);
+                        // 旋转加速
+                        window.galaxyCanvas.setRotSpeed(0.0002 + fade * 0.001);
                     }
                 } else {
                     mapEl.style.opacity = 1;
-                    if (galaxyImage) {
-                        galaxyImage.style.opacity = 0;
-                        galaxyImage.style.transform = 'scale(0.3)';
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(0);
+                        window.galaxyCanvas.setCameraZ(2500);
+                        window.galaxyCanvas.setRotSpeed(0.0002);
                     }
                 }
             }

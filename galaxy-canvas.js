@@ -1,276 +1,395 @@
-// ===== Canvas 银河（高密度震撼版）=====
+// ===== Three.js 银河粒子系统 =====
 (function() {
     const canvas = document.getElementById('galaxyCanvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
     
-    let width, height;
-    let cx, cy;
-    let rotation = 0;
+    let scene, camera, renderer, galaxy, galaxyCore;
     let targetOpacity = 0;
     let currentOpacity = 0;
-    let targetScale = 1;
-    let currentScale = 1;
+    let targetCameraZ = 2500;
+    let currentCameraZ = 2500;
+    let targetRotSpeed = 0.0002;
+    let currentRotSpeed = 0.0002;
+    let time = 0;
+    let isInit = false;
     
-    const STARS = 15000;
-    const ARMS = 4;
+    // 配置
+    const CONFIG = {
+        starCount: 80000,      // 总星数
+        coreCount: 3000,       // 核心亮星
+        armCount: 4,           // 旋臂数
+        spiralTightness: 3.5,  // 螺旋紧度
+        galaxyRadius: 1200,    // 银河半径
+        diskThickness: 40,     // 盘面厚度
+        coreRadius: 80,        // 核球半径
+        armSpread: 0.15        // 旋臂宽度
+    };
     
-    let stars = [];
-    let bgStars = []; // 背景弥散星
-    
-    function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        cx = width / 2;
-        cy = height / 2;
+    function init() {
+        if (isInit) return;
+        isInit = true;
+        
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        
+        // 场景
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0003);
+        
+        // 相机
+        camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 10000);
+        camera.position.z = currentCameraZ;
+        
+        // 渲染器
+        renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            antialias: true,
+            alpha: true
+        });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+        
+        // 创建银河
+        createGalaxy();
+        createGalaxyCore();
+        createBackgroundStars();
+        
+        // 开始动画
+        animate();
     }
     
-    function createStars() {
-        stars = [];
-        bgStars = [];
+    function createGalaxy() {
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(CONFIG.starCount * 3);
+        const colors = new Float32Array(CONFIG.starCount * 3);
+        const sizes = new Float32Array(CONFIG.starCount);
+        const opacities = new Float32Array(CONFIG.starCount);
         
-        // 银河长轴半径（屏幕像素）
-        const a = Math.min(width, height) * 0.75;
-        const b = a * 0.18; // 更扁
+        const colorCore = new THREE.Color(0xffaa66);  // 核球橙黄
+        const colorInner = new THREE.Color(0xffffff); // 内盘白
+        const colorMid = new THREE.Color(0xaaccff);   // 中盘蓝白
+        const colorOuter = new THREE.Color(0x6688cc); // 外盘蓝
         
-        // === 主银河星星 ===
-        for (let i = 0; i < STARS; i++) {
-            let x, y, size, hue, sat, light, alpha;
+        for (let i = 0; i < CONFIG.starCount; i++) {
+            let x, y, z, r, angle;
             
-            // 70% 在旋臂上，30% 弥散
-            const onArm = Math.random() < 0.7;
+            // 80% 在旋臂上，20% 弥散
+            const onArm = Math.random() < 0.8;
             
             if (onArm) {
-                const arm = Math.floor(Math.random() * ARMS);
-                const armAngle = (Math.PI * 2 / ARMS) * arm;
+                const arm = Math.floor(Math.random() * CONFIG.armCount);
+                const armAngle = (Math.PI * 2 / CONFIG.armCount) * arm;
                 
-                // t: 0=中心, 1=边缘
-                const t = Math.pow(Math.random(), 0.4); // 更多星在中部
-                const radius = t * a;
+                // t: 0=中心, 1=边缘，更多星在中部
+                const t = Math.pow(Math.random(), 0.35);
+                r = t * CONFIG.galaxyRadius;
                 
-                const spiralTurns = 2.0;
-                const angle = armAngle + t * Math.PI * 2 * spiralTurns + (Math.random() - 0.5) * 0.35;
+                // 螺旋角
+                const spiralOffset = t * CONFIG.spiralTightness * Math.PI;
+                angle = armAngle + spiralOffset;
                 
-                x = Math.cos(angle) * radius;
-                y = Math.sin(angle) * radius * 0.18;
+                // 旋臂宽度（高斯分布）
+                const armWidth = CONFIG.armSpread * (0.5 + t * 0.5);
+                angle += (Math.random() - 0.5) * armWidth;
                 
-                if (t < 0.08) {
-                    // 核球 - 极亮极大
-                    size = 2.5 + Math.random() * 4;
-                    hue = 20 + Math.random() * 25;
-                    sat = 60; light = 90;
-                    alpha = 0.95;
-                } else if (t < 0.25) {
-                    // 内盘 - 亮蓝白
-                    size = 1.5 + Math.random() * 2.5;
-                    hue = 200 + Math.random() * 30;
-                    sat = 55; light = 80;
-                    alpha = 0.85;
-                } else if (t < 0.55) {
-                    // 中盘
-                    size = 0.8 + Math.random() * 1.8;
-                    hue = 220 + Math.random() * 40;
-                    sat = 50; light = 70;
-                    alpha = 0.7;
-                } else {
-                    // 外盘
-                    size = 0.4 + Math.random() * 1.2;
-                    hue = 240 + Math.random() * 30;
-                    sat = 40; light = 60;
-                    alpha = 0.55;
-                }
+                // 盘面厚度（中心厚，边缘薄）
+                const thickness = CONFIG.diskThickness * (1 - t * 0.7);
+                z = (Math.random() - 0.5) * thickness;
             } else {
                 // 弥散星
-                const angle = Math.random() * Math.PI * 2;
-                const r = Math.sqrt(Math.random()) * a * 0.95;
-                x = Math.cos(angle) * r;
-                y = Math.sin(angle) * r * 0.18;
-                
-                const dist = r / a;
-                if (dist < 0.12) {
-                    size = 2 + Math.random() * 3;
-                    hue = 30 + Math.random() * 20;
-                    sat = 45; light = 85;
-                    alpha = 0.8;
-                } else {
-                    size = 0.3 + Math.random() * 1.0;
-                    hue = 220 + Math.random() * 50;
-                    sat = 35; light = 55;
-                    alpha = 0.45;
-                }
+                const t = Math.sqrt(Math.random());
+                r = t * CONFIG.galaxyRadius * 0.9;
+                angle = Math.random() * Math.PI * 2;
+                z = (Math.random() - 0.5) * CONFIG.diskThickness * 0.6;
             }
             
-            x += (Math.random() - 0.5) * 25;
-            y += (Math.random() - 0.5) * 12;
+            x = Math.cos(angle) * r;
+            y = Math.sin(angle) * r;
             
-            stars.push({
-                x, y, size,
-                hue, sat, light, alpha,
-                twinkle: Math.random() * Math.PI * 2,
-                twinkleSpeed: 0.2 + Math.random() * 1.5
-            });
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+            
+            // 颜色
+            const distRatio = r / CONFIG.galaxyRadius;
+            const starColor = new THREE.Color();
+            
+            if (distRatio < 0.06) {
+                starColor.copy(colorCore);
+                starColor.lerp(colorInner, Math.random() * 0.3);
+            } else if (distRatio < 0.25) {
+                starColor.copy(colorInner);
+                starColor.lerp(colorMid, (distRatio - 0.06) / 0.19);
+            } else if (distRatio < 0.6) {
+                starColor.copy(colorMid);
+                starColor.lerp(colorOuter, (distRatio - 0.25) / 0.35);
+            } else {
+                starColor.copy(colorOuter);
+            }
+            
+            colors[i * 3] = starColor.r;
+            colors[i * 3 + 1] = starColor.g;
+            colors[i * 3 + 2] = starColor.b;
+            
+            // 大小
+            if (distRatio < 0.06) {
+                sizes[i] = 2.5 + Math.random() * 3;
+            } else if (distRatio < 0.2) {
+                sizes[i] = 1.5 + Math.random() * 2;
+            } else {
+                sizes[i] = 0.8 + Math.random() * 1.5;
+            }
+            
+            // 透明度基础值
+            opacities[i] = 0.6 + Math.random() * 0.4;
         }
         
-        // === 超亮核心星 500 颗 ===
-        for (let i = 0; i < 500; i++) {
-            const r = Math.pow(Math.random(), 4) * a * 0.1;
-            const angle = Math.random() * Math.PI * 2;
-            stars.push({
-                x: Math.cos(angle) * r,
-                y: Math.sin(angle) * r * 0.18,
-                size: 3 + Math.random() * 6,
-                hue: 10 + Math.random() * 30,
-                sat: 50,
-                light: 95,
-                alpha: 0.98,
-                twinkle: Math.random() * Math.PI * 2,
-                twinkleSpeed: 0.1 + Math.random() * 0.4
-            });
-        }
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('alpha', new THREE.BufferAttribute(opacities, 1));
         
-        // === 背景远星 ===
-        for (let i = 0; i < 2000; i++) {
-            bgStars.push({
-                x: (Math.random() - 0.5) * width * 2,
-                y: (Math.random() - 0.5) * height * 2,
-                size: 0.3 + Math.random() * 0.8,
-                hue: 200 + Math.random() * 60,
-                sat: 20 + Math.random() * 30,
-                light: 50 + Math.random() * 30,
-                alpha: 0.2 + Math.random() * 0.3,
-                twinkle: Math.random() * Math.PI * 2,
-                twinkleSpeed: 0.1 + Math.random() * 0.5
-            });
-        }
+        // 自定义着色器材质
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uOpacity: { value: 0 },
+                uPixelRatio: { value: renderer.getPixelRatio() }
+            },
+            vertexShader: `
+                attribute float size;
+                attribute float alpha;
+                attribute vec3 color;
+                varying vec3 vColor;
+                varying float vAlpha;
+                uniform float uTime;
+                uniform float uPixelRatio;
+                
+                void main() {
+                    vColor = color;
+                    vAlpha = alpha;
+                    
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    
+                    // 距离衰减
+                    float dist = length(mvPosition.xyz);
+                    float sizeAtten = 300.0 / dist;
+                    
+                    // 闪烁
+                    float twinkle = sin(uTime * 2.0 + position.x * 0.01 + position.y * 0.01) * 0.3 + 0.7;
+                    
+                    gl_PointSize = size * sizeAtten * uPixelRatio * twinkle;
+                    gl_PointSize = clamp(gl_PointSize, 0.5, 15.0);
+                    
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vColor;
+                varying float vAlpha;
+                uniform float uOpacity;
+                
+                void main() {
+                    float dist = length(gl_PointCoord - vec2(0.5));
+                    if (dist > 0.5) discard;
+                    
+                    // 软边缘
+                    float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
+                    alpha *= vAlpha * uOpacity;
+                    
+                    // 中心亮核
+                    float core = 1.0 - smoothstep(0.0, 0.15, dist);
+                    vec3 finalColor = vColor + vec3(core * 0.3);
+                    
+                    gl_FragColor = vec4(finalColor, alpha);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+        
+        galaxy = new THREE.Points(geometry, material);
+        scene.add(galaxy);
     }
     
-    function draw() {
-        if (currentOpacity <= 0.005) {
-            ctx.clearRect(0, 0, width, height);
-            requestAnimationFrame(draw);
+    function createGalaxyCore() {
+        // 超亮核心星
+        const count = CONFIG.coreCount;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        const sizes = new Float32Array(count);
+        
+        for (let i = 0; i < count; i++) {
+            const r = Math.pow(Math.random(), 3) * CONFIG.coreRadius;
+            const angle = Math.random() * Math.PI * 2;
+            const z = (Math.random() - 0.5) * CONFIG.diskThickness * 0.3;
+            
+            positions[i * 3] = Math.cos(angle) * r;
+            positions[i * 3 + 1] = Math.sin(angle) * r;
+            positions[i * 3 + 2] = z;
+            
+            // 核心颜色：白 → 淡黄 → 微红
+            const t = Math.random();
+            colors[i * 3] = 1.0;
+            colors[i * 3 + 1] = 0.9 + t * 0.1;
+            colors[i * 3 + 2] = 0.7 + t * 0.2;
+            
+            sizes[i] = 3.0 + Math.random() * 5.0;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uOpacity: { value: 0 },
+                uPixelRatio: { value: renderer.getPixelRatio() }
+            },
+            vertexShader: `
+                attribute float size;
+                attribute vec3 color;
+                varying vec3 vColor;
+                uniform float uTime;
+                uniform float uPixelRatio;
+                
+                void main() {
+                    vColor = color;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    float dist = length(mvPosition.xyz);
+                    float sizeAtten = 300.0 / dist;
+                    float twinkle = sin(uTime * 1.5 + position.x * 0.05) * 0.2 + 0.8;
+                    gl_PointSize = size * sizeAtten * uPixelRatio * twinkle;
+                    gl_PointSize = clamp(gl_PointSize, 1.0, 25.0);
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vColor;
+                uniform float uOpacity;
+                
+                void main() {
+                    float dist = length(gl_PointCoord - vec2(0.5));
+                    if (dist > 0.5) discard;
+                    float alpha = 1.0 - smoothstep(0.1, 0.5, dist);
+                    // 强发光
+                    float glow = exp(-dist * dist * 8.0);
+                    vec3 finalColor = vColor + vec3(glow * 0.5);
+                    gl_FragColor = vec4(finalColor, alpha * uOpacity);
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+        
+        galaxyCore = new THREE.Points(geometry, material);
+        scene.add(galaxyCore);
+    }
+    
+    function createBackgroundStars() {
+        const count = 5000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        
+        for (let i = 0; i < count; i++) {
+            const r = 2000 + Math.random() * 3000;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
+            
+            const brightness = 0.5 + Math.random() * 0.5;
+            colors[i * 3] = brightness;
+            colors[i * 3 + 1] = brightness;
+            colors[i * 3 + 2] = brightness + 0.1;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const material = new THREE.PointsMaterial({
+            size: 1.5,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        
+        const bgStars = new THREE.Points(geometry, material);
+        scene.add(bgStars);
+    }
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        time += 0.016;
+        
+        // 平滑过渡
+        currentOpacity += (targetOpacity - currentOpacity) * 0.03;
+        currentCameraZ += (targetCameraZ - currentCameraZ) * 0.02;
+        currentRotSpeed += (targetRotSpeed - currentRotSpeed) * 0.05;
+        
+        if (currentOpacity < 0.001 && targetOpacity < 0.001) {
+            // 完全隐藏时跳过渲染
+            renderer.clear();
             return;
         }
         
-        ctx.clearRect(0, 0, width, height);
-        
-        const time = Date.now() * 0.001;
-        rotation += 0.00005;
-        currentOpacity += (targetOpacity - currentOpacity) * 0.03;
-        currentScale += (targetScale - currentScale) * 0.025;
-        
-        const cosR = Math.cos(rotation);
-        const sinR = Math.sin(rotation);
-        
-        const scale = currentScale;
-        const op = currentOpacity;
-        
-        // === 1. 银河整体光晕（多层叠加增强亮度）===
-        const glowA = Math.min(width, height) * 0.7 * scale;
-        const glowB = glowA * 0.22;
-        
-        // 最外层淡光晕
-        const outerGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowA * 1.3);
-        outerGlow.addColorStop(0, `rgba(100, 80, 180, ${0.06 * op})`);
-        outerGlow.addColorStop(0.5, `rgba(80, 60, 150, ${0.03 * op})`);
-        outerGlow.addColorStop(1, 'transparent');
-        ctx.fillStyle = outerGlow;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, glowA * 1.3, glowB * 1.3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // 盘面光晕
-        const diskGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowA);
-        diskGlow.addColorStop(0, `rgba(220, 200, 255, ${0.18 * op})`);
-        diskGlow.addColorStop(0.2, `rgba(180, 160, 240, ${0.12 * op})`);
-        diskGlow.addColorStop(0.5, `rgba(140, 120, 220, ${0.06 * op})`);
-        diskGlow.addColorStop(1, 'transparent');
-        ctx.fillStyle = diskGlow;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, glowA, glowB, 0, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // 中心亮核光晕（橙红色）
-        const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowA * 0.12);
-        coreGlow.addColorStop(0, `rgba(255, 220, 180, ${0.5 * op})`);
-        coreGlow.addColorStop(0.3, `rgba(255, 180, 120, ${0.3 * op})`);
-        coreGlow.addColorStop(0.7, `rgba(255, 140, 80, ${0.1 * op})`);
-        coreGlow.addColorStop(1, 'transparent');
-        ctx.fillStyle = coreGlow;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, glowA * 0.12, glowB * 0.12, 0, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // === 2. 画背景远星 ===
-        for (let i = 0; i < bgStars.length; i++) {
-            const s = bgStars[i];
-            const twinkle = Math.sin(time * s.twinkleSpeed + s.twinkle) * 0.5 + 0.5;
-            const a = s.alpha * (0.6 + twinkle * 0.4) * op;
-            if (a < 0.02) continue;
-            
-            ctx.fillStyle = `hsla(${s.hue}, ${s.sat}%, ${s.light}%, ${a})`;
-            ctx.beginPath();
-            ctx.arc(cx + s.x, cy + s.y, Math.max(s.size, 0.3), 0, Math.PI * 2);
-            ctx.fill();
+        // 旋转银河
+        if (galaxy) {
+            galaxy.rotation.z += currentRotSpeed;
+            galaxy.material.uniforms.uTime.value = time;
+            galaxy.material.uniforms.uOpacity.value = currentOpacity;
+        }
+        if (galaxyCore) {
+            galaxyCore.rotation.z += currentRotSpeed * 1.2;
+            galaxyCore.material.uniforms.uTime.value = time;
+            galaxyCore.material.uniforms.uOpacity.value = currentOpacity;
         }
         
-        // === 3. 画银河主星星 ===
-        for (let i = 0; i < stars.length; i++) {
-            const s = stars[i];
-            
-            const rx = s.x * cosR - s.y * sinR;
-            const ry = s.x * sinR + s.y * cosR;
-            
-            const px = cx + rx * scale;
-            const py = cy + ry * scale;
-            const pSize = s.size * scale;
-            
-            if (px < -100 || px > width + 100 || py < -100 || py > height + 100) continue;
-            
-            const twinkle = Math.sin(time * s.twinkleSpeed + s.twinkle) * 0.5 + 0.5;
-            const a = s.alpha * (0.5 + twinkle * 0.5) * op;
-            if (a < 0.02) continue;
-            
-            // 大星画光晕
-            if (pSize > 1.5) {
-                const glowR = pSize * 5;
-                const g = ctx.createRadialGradient(px, py, 0, px, py, glowR);
-                g.addColorStop(0, `hsla(${s.hue}, ${s.sat}%, ${s.light}%, ${a * 0.6})`);
-                g.addColorStop(0.4, `hsla(${s.hue}, ${s.sat}%, ${s.light}%, ${a * 0.25})`);
-                g.addColorStop(1, 'transparent');
-                ctx.fillStyle = g;
-                ctx.beginPath();
-                ctx.arc(px, py, glowR, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // 星点
-            ctx.fillStyle = `hsla(${s.hue}, ${s.sat}%, ${s.light}%, ${a})`;
-            ctx.beginPath();
-            ctx.arc(px, py, Math.max(pSize, 0.4), 0, Math.PI * 2);
-            ctx.fill();
-        }
+        // 相机位置
+        camera.position.z = currentCameraZ;
         
-        requestAnimationFrame(draw);
+        renderer.render(scene, camera);
+    }
+    
+    function onResize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
     }
     
     window.galaxyCanvas = {
         setOpacity(v) {
             targetOpacity = Math.max(0, Math.min(1, v));
         },
-        setScale(s) {
-            targetScale = Math.max(0.3, Math.min(8, s));
+        setCameraZ(z) {
+            targetCameraZ = Math.max(50, Math.min(3000, z));
+        },
+        setRotSpeed(s) {
+            targetRotSpeed = Math.max(0, Math.min(0.01, s));
         },
         init() {
-            resize();
-            createStars();
-            draw();
+            // 检查 Three.js 是否加载
+            if (typeof THREE === 'undefined') {
+                console.warn('Three.js not loaded, retrying in 500ms...');
+                setTimeout(() => this.init(), 500);
+                return;
+            }
+            init();
         }
     };
     
-    window.addEventListener('resize', () => {
-        resize();
-        createStars();
-    });
+    window.addEventListener('resize', onResize);
 })();
