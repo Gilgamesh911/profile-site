@@ -423,17 +423,19 @@
         /* 城市图例（右下，等价于 POI 的文字入口） */
         .hero-legend {
             position: absolute;
-            left: 2rem;
+            right: 2rem;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
+            align-items: flex-end;
             gap: 0.35rem;
             pointer-events: auto;
         }
 
         .hero-legend button {
             display: flex;
+            flex-direction: row-reverse;
             align-items: baseline;
             gap: 0.7rem;
             background: none;
@@ -446,14 +448,14 @@
             color: rgba(221,226,228,0.65);
             padding: 2px 0;
             transition: color 0.25s, transform 0.25s;
-            text-align: left;
+            text-align: right;
         }
 
         .hero-legend button .lg-idx { font-size: 0.6rem; color: var(--terrain); }
 
         .hero-legend button:hover {
             color: var(--neon);
-            transform: translateX(6px);
+            transform: translateX(-6px);
         }
 
         /* Scroll to explore 按钮 */
@@ -901,6 +903,6 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="galaxy-canvas.js?v=18"></script>
-    <script src="script.js?v=15"></script>
+    <script src="script.js?v=17"></script>
 </body>
 </html>

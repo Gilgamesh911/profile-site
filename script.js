@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 城市数据 =====
     const CITIES = [
-        { id: 'tongxiang', num: '01', label: '桐乡', en: 'TONGXIANG', center: [120.56, 30.63], tagDx: '-58%' },
+        { id: 'tongxiang', num: '01', label: '桐乡', en: 'TONGXIANG', center: [120.56, 30.63], tagBelow: true },
         { id: 'chengdu',   num: '02', label: '成都', en: 'CHENGDU',   center: [104.06, 30.67], tagDx: '-15%' },
         { id: 'hefei',     num: '03', label: '合肥', en: 'HEFEI',     center: [117.23, 31.82], tagDx: '-62%' },
         { id: 'hongkong',  num: '04', label: '香港', en: 'HONG KONG', center: [114.17, 22.32], tagDx: '-20%' },
@@ -101,9 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.createElement('div');
             el.className = 'poi';
             el.style.opacity = '0';
-            el.innerHTML = `
-                <div class="poi-tag" style="transform:translateX(${c.tagDx})"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
-                <div class="poi-dot"></div>`;
+            if (c.tagBelow) {
+                // 标签放在点位下半边：挂在 dot 内部做绝对定位，避免覆盖 Mapbox 的 marker 定位
+                el.innerHTML = `
+                    <div class="poi-dot" style="position:relative">
+                        <div class="poi-tag" style="position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
+                    </div>`;
+            } else {
+                el.innerHTML = `
+                    <div class="poi-tag" style="transform:translateX(${c.tagDx});"><span class="poi-idx">${c.num}</span><span>${c.label} · ${c.en}</span></div>
+                    <div class="poi-dot"></div>`;
+            }
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
                 enterWorld(c.id);
@@ -129,6 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function setPoiOpacity(v) {
         poiMarkers.forEach(m => { m.getElement().style.opacity = v; m.getElement().style.pointerEvents = v > 0.3 ? 'auto' : 'none'; });
     }
+
+    // ===== POI / 徒步路径显隐：由地图真实 zoom 每帧驱动 =====
+    // 不依赖滚动事件触发顺序，城市页（zoom > 5.2）保证隐藏
+    let poiEntrance = true;   // 入场动画期间不干预
+    let lastPoiVis = -1;
+    gsap.ticker.add(() => {
+        if (poiEntrance || !poiMarkers.length) return;
+        const vis = Math.max(0, Math.min(1, (5.2 - map.getZoom()) / 1.4));
+        if (Math.abs(vis - lastPoiVis) > 0.005) {
+            lastPoiVis = vis;
+            setTrailOpacity(vis);
+            setPoiOpacity(vis);
+        }
+    });
 
     // ===== Lenis 平滑滚动 =====
     const lenis = new Lenis({
@@ -256,10 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 回到顶部时 hero UI 重新出现
                 heroUI.classList.toggle('exited', progress > 0.012);
 
-                // POI 与徒步路径只在概览（低 zoom）可见
-                const overview = Math.max(0, Math.min(1, (5.2 - zoom) / 1.4));
-                setTrailOpacity(overview);
-                setPoiOpacity(overview);
+                // （POI / 路径显隐由 gsap.ticker 按地图真实 zoom 驱动）
 
                 // 地球淡出 + 银河飞入（上海段之后）
                 if (index >= 6) {
@@ -367,6 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     v: 1, duration: 1.8, delay: 0.5, ease: 'power2.out',
                     onUpdate: () => setTrailOpacity(trailFade.v)
                 });
+                // 入场动画结束后，显隐交由 ticker 按地图 zoom 驱动
+                gsap.delayedCall(2.5, () => { poiEntrance = false; });
                 if (window.galaxyCanvas) window.galaxyCanvas.init();
                 setTimeout(() => { loader.style.display = 'none'; }, 1000);
             }, 450);
