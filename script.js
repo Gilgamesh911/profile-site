@@ -196,10 +196,55 @@ document.addEventListener('DOMContentLoaded', () => {
     let entered = false;   // 是否已通过 hero 门禁
     let entering = false;  // 过渡中
 
+    // ===== 城市锚点吸附（滚动阻力） =====
+    let snapOffsets = [];
+    function computeSnapOffsets() {
+        snapOffsets = cameraPath.map(c => {
+            const el = document.getElementById(c.name);
+            return el ? el.offsetTop : 0;
+        });
+    }
+
+    let snapLock = false;   // 程序化滚动期间不吸附
+    let snapTimer = null;
+
+    // 带锁的程序化滚动：导航/POI 跳转时不与吸附打架
+    function lockedScrollTo(target, opts = {}) {
+        snapLock = true;
+        clearTimeout(snapLock._t);
+        snapLock._t = setTimeout(() => { snapLock = false; }, (opts.duration || 1.5) * 1000 + 600);
+        lenis.scrollTo(target, {
+            ...opts,
+            onComplete: () => { clearTimeout(snapLock._t); snapLock = false; }
+        });
+    }
+
+    function snapToNearest() {
+        if (!entered || entering || snapLock || !snapOffsets.length) return;
+        const y = window.scrollY;
+        let best = snapOffsets[0], bestD = Math.abs(y - best);
+        for (let i = 1; i < snapOffsets.length; i++) {
+            const d = Math.abs(y - snapOffsets[i]);
+            if (d < bestD) { bestD = d; best = snapOffsets[i]; }
+        }
+        if (bestD > 6) {
+            lockedScrollTo(best, { duration: 0.9 });
+        }
+    }
+
+    // 滚动停稳后吸附到最近的城市锚点
+    lenis.on('scroll', (e) => {
+        if (!entered || entering || snapLock) return;
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => {
+            if (Math.abs(e.velocity) < 1.5) snapToNearest();
+        }, 120);
+    });
+
     // ===== Hero 进入动画（滚轮累计 / 点击 / POI 直达） =====
     function enterWorld(targetId) {
         if (entered) {
-            if (targetId) lenis.scrollTo('#' + targetId, { duration: 2.0 });
+            if (targetId) lockedScrollTo('#' + targetId, { duration: 2.0 });
             return;
         }
         if (entering) return;
@@ -212,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             entering = false;
             if (targetId) {
-                lenis.scrollTo('#' + targetId, { duration: 2.4 });
+                lockedScrollTo('#' + targetId, { duration: 2.4 });
             }
         }, 700);
     }
@@ -250,20 +295,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 品牌回首页
     document.getElementById('brandHome').addEventListener('click', () => {
-        lenis.scrollTo(0, { duration: 1.8 });
+        lockedScrollTo(0, { duration: 1.8 });
     });
 
     // ===== 滚动驱动相机 + POI/路径显隐 + 银河淡入 =====
     function setupScrollCamera() {
+        computeSnapOffsets();
         ScrollTrigger.create({
             trigger: '.content-layer',
             start: 'top top',
             end: 'bottom bottom',
             onUpdate: (self) => {
                 const progress = self.progress;
+                const y = window.scrollY;
                 const total = cameraPath.length - 1;
-                const index = Math.min(Math.floor(progress * total), total - 1);
-                const localProgress = (progress * total) - index;
+
+                // 按各 section 真实锚点定位相机段，保证相机恰好在城市页顶部对准城市
+                let index = total - 1, localProgress = 1;
+                for (let i = 0; i < total; i++) {
+                    if (y < snapOffsets[i + 1] - 0.5) {
+                        index = i;
+                        const seg = snapOffsets[i + 1] - snapOffsets[i];
+                        localProgress = seg > 0 ? (y - snapOffsets[i]) / seg : 0;
+                        break;
+                    }
+                }
+                localProgress = Math.max(0, Math.min(1, localProgress));
 
                 const from = cameraPath[index];
                 const to = cameraPath[index + 1];
@@ -342,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const href = link.getAttribute('href');
             if (!entered) { enterWorld(href.slice(1)); return; }
             const target = document.querySelector(href);
-            if (target) lenis.scrollTo(target, { offset: 0, duration: 1.5 });
+            if (target) lockedScrollTo(target, { offset: 0, duration: 1.5 });
         });
     });
 
@@ -425,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             map.resize();
+            computeSnapOffsets();
             ScrollTrigger.refresh();
         }, 250);
     });
