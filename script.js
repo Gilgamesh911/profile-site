@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'beijing',   num: '05', label: '北京', en: 'BEIJING',   center: [116.40, 39.90], tagDx: '-15%' },
         { id: 'shanghai',  num: '06', label: '上海', en: 'SHANGHAI',  center: [121.47, 31.23], tagDx: '22%', tagDxMobile: '-15%' },
     ];
+    const CITY_IDS = new Set(CITIES.map(c => c.id));
+    const CITY_CENTER_OFFSET = 0.15; // 130vh 面板里，卡片中心落在视口正中所需的 15vh 偏移
+    const CITY_FREEZE_HALF = 0.35;   // 落地视角前后各锁定 35vh
 
     // ===== 徒步路径：在城市之间生成蜿蜒小径 =====
     function makeTrail(points) {
@@ -177,14 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 相机路径 =====
     const cameraPath = [
-        { name: 'hero',      center: HERO_CENTER,     zoom: HERO_ZOOM, pitch: 0, bearing: 0 },
-        { name: 'tongxiang', center: [120.56, 30.63], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'chengdu',   center: [104.06, 30.67], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'shanghai',  center: [121.47, 31.23], zoom: 12.0, pitch: 65, bearing: 0 },
-        { name: 'stars',     center: [105.0, 35.0],   zoom: 0.0,  pitch: 0,  bearing: 0 },
+        { name: 'hero',      center: HERO_CENTER,     zoom: HERO_ZOOM, pitch: 0, bearing: 0, anchorRatio: 0,    freezeRatio: 0 },
+        { name: 'tongxiang', center: [120.56, 30.63], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'chengdu',   center: [104.06, 30.67], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'shanghai',  center: [121.47, 31.23], zoom: 12.0, pitch: 65, bearing: 0, anchorRatio: CITY_CENTER_OFFSET, freezeRatio: CITY_FREEZE_HALF },
+        { name: 'stars',     center: [105.0, 35.0],   zoom: 0.0,  pitch: 0,  bearing: 0, anchorRatio: 0,    freezeRatio: 0 },
     ];
 
     const coordsEl = document.getElementById('coords');
@@ -192,17 +195,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapEl = document.getElementById('map');
 
     function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+    function easeInOutCubic(t) {
+        return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
 
     let entered = false;   // 是否已通过 hero 门禁
     let entering = false;  // 过渡中
 
     // ===== 城市锚点吸附（滚动阻力） =====
-    let snapOffsets = [];
-    function computeSnapOffsets() {
-        snapOffsets = cameraPath.map(c => {
+    let scrollStops = [];
+    function computeScrollStops() {
+        scrollStops = cameraPath.map(c => {
             const el = document.getElementById(c.name);
-            return el ? el.offsetTop : 0;
+            const baseTop = el ? el.offsetTop : 0;
+            return {
+                ...c,
+                top: baseTop,
+                anchorY: baseTop + window.innerHeight * (c.anchorRatio || 0),
+                freezeHalf: window.innerHeight * (c.freezeRatio || 0)
+            };
         });
+    }
+
+    function getTargetScrollY(targetId) {
+        if (!scrollStops.length) computeScrollStops();
+        const stop = scrollStops.find(s => s.name === targetId);
+        if (stop) return stop.anchorY;
+        const el = document.getElementById(targetId);
+        return el ? el.offsetTop : 0;
     }
 
     let snapLock = false;   // 程序化滚动期间不吸附
@@ -220,12 +243,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function snapToNearest() {
-        if (!entered || entering || snapLock || !snapOffsets.length) return;
+        if (!entered || entering || snapLock || !scrollStops.length) return;
         const y = window.scrollY;
-        let best = snapOffsets[0], bestD = Math.abs(y - best);
-        for (let i = 1; i < snapOffsets.length; i++) {
-            const d = Math.abs(y - snapOffsets[i]);
-            if (d < bestD) { bestD = d; best = snapOffsets[i]; }
+        let best = scrollStops[0].anchorY, bestD = Math.abs(y - best);
+        for (let i = 1; i < scrollStops.length; i++) {
+            const d = Math.abs(y - scrollStops[i].anchorY);
+            if (d < bestD) { bestD = d; best = scrollStops[i].anchorY; }
         }
         if (bestD > 6) {
             lockedScrollTo(best, { duration: 0.9 });
@@ -244,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== Hero 进入动画（滚轮累计 / 点击 / POI 直达） =====
     function enterWorld(targetId) {
         if (entered) {
-            if (targetId) lockedScrollTo('#' + targetId, { duration: 2.0 });
+            if (targetId) lockedScrollTo(getTargetScrollY(targetId), { duration: 2.0 });
             return;
         }
         if (entering) return;
@@ -257,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             entering = false;
             if (targetId) {
-                lockedScrollTo('#' + targetId, { duration: 2.4 });
+                lockedScrollTo(getTargetScrollY(targetId), { duration: 2.4 });
             }
         }, 700);
     }
@@ -300,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 滚动驱动相机 + POI/路径显隐 + 银河淡入 =====
     function setupScrollCamera() {
-        computeSnapOffsets();
+        computeScrollStops();
         ScrollTrigger.create({
             trigger: '.content-layer',
             start: 'top top',
@@ -308,22 +331,48 @@ document.addEventListener('DOMContentLoaded', () => {
             onUpdate: (self) => {
                 const progress = self.progress;
                 const y = window.scrollY;
-                const total = cameraPath.length - 1;
+                const total = scrollStops.length - 1;
+                const first = scrollStops[0];
 
-                // 按各 section 真实锚点定位相机段，保证相机恰好在城市页顶部对准城市
-                let index = total - 1, localProgress = 1;
+                let activeIndex = 0;
+                let from = first;
+                let to = first;
+                let localProgress = 0;
+                let inFlight = false;
+
                 for (let i = 0; i < total; i++) {
-                    if (y < snapOffsets[i + 1] - 0.5) {
-                        index = i;
-                        const seg = snapOffsets[i + 1] - snapOffsets[i];
-                        localProgress = seg > 0 ? (y - snapOffsets[i]) / seg : 0;
+                    const current = scrollStops[i];
+                    const next = scrollStops[i + 1];
+                    const flightStart = current.anchorY + current.freezeHalf;
+                    const flightEnd = next.anchorY - next.freezeHalf;
+
+                    if (y < flightStart) {
+                        activeIndex = i;
+                        from = current;
+                        to = current;
+                        localProgress = 0;
+                        inFlight = false;
                         break;
                     }
-                }
-                localProgress = Math.max(0, Math.min(1, localProgress));
 
-                const from = cameraPath[index];
-                const to = cameraPath[index + 1];
+                    if (y <= flightEnd) {
+                        const span = Math.max(1, flightEnd - flightStart);
+                        activeIndex = i;
+                        from = current;
+                        to = next;
+                        localProgress = easeInOutCubic(clamp01((y - flightStart) / span));
+                        inFlight = true;
+                        break;
+                    }
+
+                    if (i === total - 1) {
+                        activeIndex = total;
+                        from = next;
+                        to = next;
+                        localProgress = 0;
+                        inFlight = false;
+                    }
+                }
 
                 const center = [
                     lerp(from.center[0], to.center[0], localProgress),
@@ -343,13 +392,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 // （POI / 路径显隐由 gsap.ticker 按地图真实 zoom 驱动）
 
                 // 地球淡出 + 银河飞入（上海段之后）
-                if (index >= 6) {
-                    const fade = Math.min(1, localProgress * 2);
+                if (inFlight && from.name === 'shanghai' && to.name === 'stars') {
+                    const fade = localProgress;
                     mapEl.style.opacity = 1 - fade;
                     if (window.galaxyCanvas) {
                         window.galaxyCanvas.setOpacity(fade);
                         window.galaxyCanvas.setCameraZ(2000 - fade * 1600);
                         window.galaxyCanvas.setRotSpeed(0.0002 + fade * 0.001);
+                    }
+                } else if (!inFlight && activeIndex >= total) {
+                    mapEl.style.opacity = 0;
+                    if (window.galaxyCanvas) {
+                        window.galaxyCanvas.setOpacity(1);
+                        window.galaxyCanvas.setCameraZ(400);
+                        window.galaxyCanvas.setRotSpeed(0.0012);
                     }
                 } else {
                     mapEl.style.opacity = 1;
@@ -398,8 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const href = link.getAttribute('href');
             if (!entered) { enterWorld(href.slice(1)); return; }
-            const target = document.querySelector(href);
-            if (target) lockedScrollTo(target, { offset: 0, duration: 1.5 });
+            lockedScrollTo(getTargetScrollY(href.slice(1)), { duration: 1.5 });
         });
     });
 
@@ -482,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             map.resize();
-            computeSnapOffsets();
+            computeScrollStops();
             ScrollTrigger.refresh();
         }, 250);
     });
