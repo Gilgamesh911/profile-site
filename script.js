@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'hefei',     center: [117.23, 31.82], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'hongkong',  center: [114.17, 22.32], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'beijing',   center: [116.40, 39.90], zoom: 12.0, pitch: 65, bearing: 0 },
+        { name: 'shanghai',  center: [121.47, 31.23], zoom: 12.0, pitch: 65, bearing: 0 },
         { name: 'stars',     center: [105.0, 35.0], zoom: 0.0,  pitch: 0,  bearing: 0 },
     ];
     
