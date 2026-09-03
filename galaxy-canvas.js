@@ -273,7 +273,7 @@
             sizes[i] = 0.8 + Math.random() * 2.2; // 0.8-3.0，和旋臂一致
             
             // 透明度：中心更亮
-            opacities[i] = (0.7 + Math.random() * 0.3) * (1.0 - distRatio * 0.35);
+            opacities[i] = (0.55 + Math.random() * 0.25) * (1.0 - distRatio * 0.35);
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -322,7 +322,7 @@
                     alpha *= vAlpha * uOpacity;
                     
                     // 中心稍亮
-                    vec3 finalColor = vColor * (0.8 + 0.4 * exp(-dist * dist * 6.0));
+                    vec3 finalColor = vColor * (0.6 + 0.3 * exp(-dist * dist * 6.0));
                     
                     gl_FragColor = vec4(finalColor, alpha);
                 }
