@@ -16,13 +16,13 @@
     // 配置
     const CONFIG = {
         starCount: 80000,      // 总星数
-        coreCount: 3000,       // 核心亮星
+        coreCount: 1500,       // 核心亮星（减少，更稀疏）
         armCount: 4,           // 旋臂数
         spiralTightness: 3.5,  // 螺旋紧度
-        galaxyRadius: 1200,    // 银河半径
-        diskThickness: 40,     // 盘面厚度
-        coreRadius: 80,        // 核球半径
-        armSpread: 0.15        // 旋臂宽度
+        galaxyRadius: 1800,    // 银河半径（更大星盘）
+        diskThickness: 50,     // 盘面厚度
+        coreRadius: 200,       // 核球半径（更大更分散）
+        armSpread: 0.18        // 旋臂宽度
     };
     
     function init() {
@@ -82,7 +82,7 @@
                 const armAngle = (Math.PI * 2 / CONFIG.armCount) * arm;
                 
                 // t: 0=中心, 1=边缘，更多星在中部
-                const t = Math.pow(Math.random(), 0.35);
+                const t = Math.pow(Math.random(), 0.5); // 更均匀分布到外围
                 r = t * CONFIG.galaxyRadius;
                 
                 // 螺旋角
@@ -111,21 +111,37 @@
             positions[i * 3 + 1] = y;
             positions[i * 3 + 2] = z;
             
-            // 颜色
+            // 颜色（更丰富）
             const distRatio = r / CONFIG.galaxyRadius;
             const starColor = new THREE.Color();
+            const rand = Math.random();
             
-            if (distRatio < 0.06) {
-                starColor.copy(colorCore);
-                starColor.lerp(colorInner, Math.random() * 0.3);
-            } else if (distRatio < 0.25) {
+            if (distRatio < 0.12) {
+                // 核心区域：红、橙、黄、白混合，不纯白
+                const coreColors = [
+                    new THREE.Color(0xff6644), // 红
+                    new THREE.Color(0xffaa44), // 橙
+                    new THREE.Color(0xffdd88), // 黄
+                    new THREE.Color(0xffeedd), // 淡黄白
+                    new THREE.Color(0xffffff), // 白
+                ];
+                starColor.copy(coreColors[Math.floor(rand * coreColors.length)]);
+                starColor.lerp(colorInner, rand * 0.2);
+            } else if (distRatio < 0.3) {
                 starColor.copy(colorInner);
-                starColor.lerp(colorMid, (distRatio - 0.06) / 0.19);
-            } else if (distRatio < 0.6) {
+                starColor.lerp(colorMid, (distRatio - 0.12) / 0.18);
+                // 加入一点随机色调
+                if (rand < 0.3) starColor.lerp(new THREE.Color(0xffccaa), 0.2);
+                if (rand > 0.7) starColor.lerp(new THREE.Color(0xaaddff), 0.2);
+            } else if (distRatio < 0.65) {
                 starColor.copy(colorMid);
-                starColor.lerp(colorOuter, (distRatio - 0.25) / 0.35);
+                starColor.lerp(colorOuter, (distRatio - 0.3) / 0.35);
+                if (rand < 0.2) starColor.lerp(new THREE.Color(0x88ccff), 0.15);
+                if (rand > 0.8) starColor.lerp(new THREE.Color(0xaaffdd), 0.15);
             } else {
                 starColor.copy(colorOuter);
+                if (rand < 0.3) starColor.lerp(new THREE.Color(0x4466aa), 0.2);
+                if (rand > 0.7) starColor.lerp(new THREE.Color(0x6688cc), 0.2);
             }
             
             colors[i * 3] = starColor.r;
@@ -133,9 +149,9 @@
             colors[i * 3 + 2] = starColor.b;
             
             // 大小
-            if (distRatio < 0.06) {
-                sizes[i] = 2.5 + Math.random() * 3;
-            } else if (distRatio < 0.2) {
+            if (distRatio < 0.12) {
+                sizes[i] = 2.0 + Math.random() * 2.5;
+            } else if (distRatio < 0.3) {
                 sizes[i] = 1.5 + Math.random() * 2;
             } else {
                 sizes[i] = 0.8 + Math.random() * 1.5;
@@ -223,7 +239,7 @@
         const sizes = new Float32Array(count);
         
         for (let i = 0; i < count; i++) {
-            const r = Math.pow(Math.random(), 3) * CONFIG.coreRadius;
+            const r = Math.pow(Math.random(), 1.8) * CONFIG.coreRadius; // 更分散
             const angle = Math.random() * Math.PI * 2;
             const z = (Math.random() - 0.5) * CONFIG.diskThickness * 0.3;
             
@@ -231,11 +247,19 @@
             positions[i * 3 + 1] = Math.sin(angle) * r;
             positions[i * 3 + 2] = z;
             
-            // 核心颜色：白 → 淡黄 → 微红
-            const t = Math.random();
-            colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.9 + t * 0.1;
-            colors[i * 3 + 2] = 0.7 + t * 0.2;
+            // 核心颜色：红、橙、黄、白混合
+            const corePalette = [
+                [1.0, 0.4, 0.3], // 红
+                [1.0, 0.6, 0.3], // 橙红
+                [1.0, 0.8, 0.4], // 橙黄
+                [1.0, 0.9, 0.6], // 黄
+                [1.0, 1.0, 0.9], // 淡黄白
+                [1.0, 1.0, 1.0], // 白
+            ];
+            const c = corePalette[Math.floor(Math.random() * corePalette.length)];
+            colors[i * 3] = c[0];
+            colors[i * 3 + 1] = c[1];
+            colors[i * 3 + 2] = c[2];
             
             sizes[i] = 3.0 + Math.random() * 5.0;
         }
