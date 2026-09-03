@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 地球淡出 + Three.js 银河飞入（从上海段开始）
                 if (index >= 6) {
-                if (index >= 5) {
                     const fade = Math.min(1, localProgress * 2);
                     mapEl.style.opacity = 1 - fade;
                     if (window.galaxyCanvas) {
