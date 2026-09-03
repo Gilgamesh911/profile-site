@@ -231,73 +231,49 @@
     }
     
     function createGalaxyCore() {
-        // 核心区：从星核向外渐变扩散到红色圆圈边界
-        const count = 8000;  // 增加数量，核心区有足够密度
+        // 核心区：和旋臂星星同大小，靠高密度+宽发光叠加形成渐变
+        const count = 8000;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
         const colors = new Float32Array(count * 3);
         const sizes = new Float32Array(count);
         const opacities = new Float32Array(count);
         
-        // 核心区分层：星核（超密）→ 核球（密）→ 外围（疏）
         for (let i = 0; i < count; i++) {
-            // 使用 pow 让星星高度集中在中心，向外幂律衰减
-            const t = Math.pow(Math.random(), 3.0); // t≈0 中心, t≈1 边缘
+            // 幂律分布：中心超密，向外快速稀疏
+            const t = Math.pow(Math.random(), 3.5);
             const r = t * CONFIG.coreRadius;
             const angle = Math.random() * Math.PI * 2;
-            const z = (Math.random() - 0.5) * CONFIG.diskThickness * (0.3 + t * 0.4);
+            const z = (Math.random() - 0.5) * CONFIG.diskThickness * (0.2 + t * 0.3);
             
             positions[i * 3] = Math.cos(angle) * r;
             positions[i * 3 + 1] = Math.sin(angle) * r;
             positions[i * 3 + 2] = z;
             
-            // 距离比例（0=中心, 1=边缘）
             const distRatio = r / CONFIG.coreRadius;
             
-            // 颜色：中心偏暖（红/橙/黄），外围偏淡
+            // 颜色
             const corePalette = [
-                new THREE.Color(0xff6644), // 红
-                new THREE.Color(0xff8844), // 橙红
-                new THREE.Color(0xffaa44), // 橙
-                new THREE.Color(0xffcc66), // 黄
-                new THREE.Color(0xffeeaa), // 淡黄
-                new THREE.Color(0xffffff), // 白
+                new THREE.Color(0xff6644),
+                new THREE.Color(0xff8844),
+                new THREE.Color(0xffaa44),
+                new THREE.Color(0xffcc66),
+                new THREE.Color(0xffeeaa),
+                new THREE.Color(0xffffff),
             ];
-            
-            let starColor;
-            if (distRatio < 0.15) {
-                // 星核：暖色调为主
-                starColor = corePalette[Math.floor(Math.random() * 4)];
-            } else if (distRatio < 0.4) {
-                // 内层：加入白/淡黄
-                starColor = corePalette[Math.floor(Math.random() * 5)];
-            } else {
-                // 外围：更多白色
-                starColor = corePalette[Math.floor(Math.random() * corePalette.length)];
-            }
-            
-            // 向外渐变：混入一点冷色
+            let starColor = corePalette[Math.floor(Math.random() * corePalette.length)];
             if (distRatio > 0.5) {
                 starColor.lerp(new THREE.Color(0xaaddff), (distRatio - 0.5) * 0.3);
             }
-            
             colors[i * 3] = starColor.r;
             colors[i * 3 + 1] = starColor.g;
             colors[i * 3 + 2] = starColor.b;
             
-            // 大小：中心大，向外递减
-            if (distRatio < 0.1) {
-                sizes[i] = 12.0 + Math.random() * 16.0;  // 星核：12-28
-            } else if (distRatio < 0.3) {
-                sizes[i] = 8.0 + Math.random() * 10.0;   // 内层：8-18
-            } else if (distRatio < 0.6) {
-                sizes[i] = 5.0 + Math.random() * 6.0;    // 中层：5-11
-            } else {
-                sizes[i] = 3.0 + Math.random() * 4.0;    // 外层：3-7
-            }
+            // 大小：和旋臂星星完全一样！不刻意放大
+            sizes[i] = 0.8 + Math.random() * 2.2; // 0.8-3.0，和旋臂一致
             
-            // 透明度：中心亮，外围淡
-            opacities[i] = 0.9 * (1.0 - distRatio * 0.4) + Math.random() * 0.2;
+            // 透明度：中心更亮
+            opacities[i] = (0.7 + Math.random() * 0.3) * (1.0 - distRatio * 0.35);
         }
         
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -328,7 +304,7 @@
                     float sizeAtten = 800.0 / dist;
                     float twinkle = sin(uTime * 1.5 + position.x * 0.05) * 0.2 + 0.8;
                     gl_PointSize = size * sizeAtten * uPixelRatio * twinkle;
-                    gl_PointSize = clamp(gl_PointSize, 1.0, 40.0);
+                    gl_PointSize = clamp(gl_PointSize, 0.5, 20.0);
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
@@ -340,11 +316,14 @@
                 void main() {
                     float dist = length(gl_PointCoord - vec2(0.5));
                     if (dist > 0.5) discard;
-                    float alpha = 1.0 - smoothstep(0.1, 0.5, dist);
+                    
+                    // 很宽很柔和的发光光晕——多个小星星叠加后形成自然渐变
+                    float alpha = exp(-dist * dist * 4.0);
                     alpha *= vAlpha * uOpacity;
-                    // 超宽发光：从中心向外的渐变光晕
-                    float glow = exp(-dist * dist * 2.5);
-                    vec3 finalColor = vColor * (1.0 + glow * 0.8);
+                    
+                    // 中心稍亮
+                    vec3 finalColor = vColor * (0.8 + 0.4 * exp(-dist * dist * 6.0));
+                    
                     gl_FragColor = vec4(finalColor, alpha);
                 }
             `,
