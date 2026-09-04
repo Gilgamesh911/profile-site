@@ -42,6 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const CITY_IDS = new Set(CITIES.map(c => c.id));
     const CITY_CENTER_OFFSET = 0.15; // 130vh 面板里，卡片中心落在视口正中所需的 15vh 偏移
     const CITY_FREEZE_HALF = 0.35;   // 落地视角前后各锁定 35vh
+    const CITY_VIEW_BASE = 'assets/city-views/';
+
+    function getCityViewUrl(cityId) {
+        return `${CITY_VIEW_BASE}${cityId}.webp`;
+    }
+
+    CITIES.forEach((city) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.fetchPriority = 'low';
+        img.src = getCityViewUrl(city.id);
+    });
 
     // ===== 徒步路径：在城市之间生成蜿蜒小径 =====
     function makeTrail(points) {
@@ -197,6 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const coordsEl = document.getElementById('coords');
     const heroUI = document.getElementById('heroUI');
     const mapEl = document.getElementById('map');
+    const staticMapLayer = document.getElementById('staticMapLayer');
+    const staticMapImage = document.getElementById('staticMapImage');
 
     function lerp(a, b, t) { return a + (b - a) * t; }
     function clamp01(t) { return Math.max(0, Math.min(1, t)); }
@@ -204,6 +218,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return t < 0.5
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    let activeStaticCity = null;
+    function setStaticCityView(cityId) {
+        if (!staticMapLayer || !staticMapImage) return;
+
+        if (cityId && CITY_IDS.has(cityId)) {
+            if (activeStaticCity !== cityId) {
+                staticMapImage.src = getCityViewUrl(cityId);
+                activeStaticCity = cityId;
+            }
+            staticMapLayer.classList.add('is-visible');
+        } else {
+            staticMapLayer.classList.remove('is-visible');
+        }
     }
 
     let entered = false;   // 是否已通过 hero 门禁
@@ -387,6 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const bearing = lerp(from.bearing, to.bearing, localProgress);
 
                 map.jumpTo({ center, zoom, pitch, bearing });
+                setStaticCityView(!inFlight && CITY_IDS.has(from.name) ? from.name : null);
 
                 coordsEl.textContent = `${center[1].toFixed(2)}°N, ${center[0].toFixed(2)}°E`;
 
