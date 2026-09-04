@@ -11,9 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const _d='pBlasK31iSMEVRflVJwAg';
     mapboxgl.accessToken=_p+_a+_b+_c+_d;
 
+    const isMobileMap = window.innerWidth < 768;
+
     // 移动端拉远 hero 视野，保证 6 个城市都入镜
-    const HERO_ZOOM = window.innerWidth < 768 ? 2.95 : 3.3;
-    const HERO_CENTER = window.innerWidth < 768 ? [110.5, 32.0] : [108.8, 32.2];
+    const HERO_ZOOM = isMobileMap ? 2.95 : 3.3;
+    const HERO_CENTER = isMobileMap ? [110.5, 32.0] : [108.8, 32.2];
 
     const map = new mapboxgl.Map({
         container: 'map',
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         zoom: HERO_ZOOM,
         pitch: 0,
         bearing: 0,
-        projection: 'globe',
+        projection: isMobileMap ? 'mercator' : 'globe',
         antialias: true,
         attributionControl: false,
         interactive: false
@@ -68,17 +70,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const poiMarkers = [];
 
     map.on('load', () => {
-        // 3D 地形
-        try {
-            map.addSource('mapbox-dem', {
-                type: 'raster-dem',
-                url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-                tileSize: 512,
-                maxzoom: 14
-            });
-            map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-        } catch (e) {
-            console.warn('Terrain load failed:', e);
+        // 桌面端保留 3D 地形；移动端跳过 DEM 瓦片，降低首屏和飞行段加载压力。
+        if (!isMobileMap) {
+            try {
+                map.addSource('mapbox-dem', {
+                    type: 'raster-dem',
+                    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                    tileSize: 512,
+                    maxzoom: 14
+                });
+                map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+            } catch (e) {
+                console.warn('Terrain load failed:', e);
+            }
         }
 
         // 徒步路径（深色描边 + 荧光虚线）
