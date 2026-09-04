@@ -48,12 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${CITY_VIEW_BASE}${cityId}.webp`;
     }
 
-    CITIES.forEach((city) => {
-        const img = new Image();
-        img.decoding = 'async';
-        img.fetchPriority = 'low';
-        img.src = getCityViewUrl(city.id);
-    });
+    if (isMobileMap) {
+        CITIES.forEach((city) => {
+            const img = new Image();
+            img.decoding = 'async';
+            img.fetchPriority = 'low';
+            img.src = getCityViewUrl(city.id);
+        });
+    }
 
     // ===== 徒步路径：在城市之间生成蜿蜒小径 =====
     function makeTrail(points) {
@@ -224,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setStaticCityView(cityId) {
         if (!staticMapLayer || !staticMapImage) return;
 
-        if (cityId && CITY_IDS.has(cityId)) {
+        if (isMobileMap && cityId && CITY_IDS.has(cityId)) {
             if (activeStaticCity !== cityId) {
                 staticMapImage.src = getCityViewUrl(cityId);
                 activeStaticCity = cityId;
