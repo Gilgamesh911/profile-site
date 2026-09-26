@@ -667,6 +667,89 @@
             margin: 1.4rem 0;
         }
 
+        /* Reference poster: title → circle → portrait → labels. */
+        .origin-profile-card {
+            position: absolute;
+            left: 5.4vw;
+            top: 50%;
+            width: min(500px, calc(100vw - 10vw));
+            min-width: 0;
+            height: 365.6px;
+            transform: translateY(-50%);
+            container-type: size;
+            isolation: isolate;
+            color: var(--deep);
+            background: var(--icy);
+            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+            overflow: hidden;
+        }
+        .profile-mark {
+            position: absolute; left: 2%; top: 2%;
+            color: var(--terrain); font-size: 4cqw; line-height: 1;
+        }
+        .profile-meta-top {
+            position: absolute; inset: 2.7% 3.2% auto 6.4%;
+            display: flex; justify-content: space-between; align-items: center;
+            font: 700 1.45cqw/1.2 Arial, sans-serif;
+            text-transform: uppercase;
+        }
+        .profile-arrow { margin-left: 2cqw; color: var(--terrain); font-size: 3cqw; line-height: 0; }
+        .profile-wordmark {
+            position: absolute; z-index: 0; left: 6.4%; top: 8.5%;
+            width: 90%; height: 40.5%; overflow: visible;
+            font-family: var(--display); fill: var(--deep);
+        }
+        .profile-circle {
+            position: absolute; z-index: 1;
+            left: 39.4%; top: 49%; width: 45%; aspect-ratio: 1;
+            border-radius: 50%; background: var(--terrain);
+        }
+        .profile-portrait-image {
+            position: absolute; z-index: 2;
+            right: 2.5%; bottom: 0;
+            height: 70%; width: auto; max-width: none;
+            display: block;
+        }
+        .profile-side-label {
+            position: absolute; z-index: 3; left: 2.2%; top: 10%; height: 40%;
+            display: flex; align-items: center; gap: 2cqw;
+            writing-mode: vertical-rl; transform: rotate(180deg);
+            font: 700 1.35cqw/1 Arial, sans-serif; text-transform: uppercase;
+        }
+        .profile-side-label::before, .profile-side-label::after {
+            content: ''; width: 1px; flex: 1; min-height: 2cqw; background: currentColor;
+        }
+        .profile-side-label.right {
+            left: auto; right: 2.2%; top: 51%; height: 38%; transform: none;
+        }
+        .profile-main-info {
+            position: absolute; z-index: 3; left: 6.4%; top: 53.5%; width: 33%; height: 43%;
+        }
+        .profile-greeting { font: 700 2.1cqw/1.2 Arial, sans-serif; }
+        .profile-name-cn {
+            margin-top: 1.3cqw; font-family: 'Noto Sans SC', Arial, sans-serif;
+            font-weight: 700; font-size: 7.7cqw; line-height: 1.12; letter-spacing: -.05em;
+        }
+        .profile-name-en { margin-top: .7cqw; font: 700 4cqw/1.05 var(--display); }
+        .profile-role {
+            margin-top: 2.3cqw; color: var(--forest);
+            font: 700 1.8cqw/1.3 Arial, sans-serif;
+        }
+        .profile-copy { margin-top: 2cqw; font-size: 1.8cqw; line-height: 1.6; }
+        .profile-contact {
+            position: absolute; left: 0; bottom: 0;
+            margin: 0; white-space: nowrap;
+            font: 1.5cqw/1.3 var(--mono);
+        }
+        .profile-badge {
+            position: absolute; z-index: 4; right: 5%; top: 60%;
+            width: 14%; aspect-ratio: 1; border-radius: 50%;
+            background: var(--icy); color: var(--forest);
+            display: grid; place-items: center; text-align: center;
+        }
+        .profile-badge svg { position: absolute; inset: 5%; width: 90%; height: 90%; fill: currentColor; }
+        .profile-badge strong { font: 700 1.45cqw/1.25 Arial, sans-serif; }
+
         /* ===== 终章：星辰大海 ===== */
         .footer-panel {
             min-height: 100vh;
@@ -772,6 +855,23 @@
             .city-title { font-size: 1.7rem; }
             .city-subtitle { font-size: 0.68rem; }
             .city-desc { font-size: 0.85rem; line-height: 1.75; }
+            .origin-profile-card {
+                position: relative;
+                left: auto;
+                top: auto;
+                width: 88vw;
+                min-width: 0;
+                height: 760px;
+                transform: none;
+                margin: 8rem auto 1.4rem;
+            }
+            #tongxiang {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 1.2rem;
+                padding: 0 1rem;
+            }
             .footer-title { font-size: clamp(2.6rem, 14vw, 4rem); }
             .footer-subtitle { font-size: 0.72rem; padding: 0 1.5rem; }
         }
@@ -884,6 +984,35 @@
 
         <!-- 桐乡 -->
         <section class="city-panel" id="tongxiang">
+            <article class="origin-profile-card" aria-label="徐振洋个人介绍">
+                <div class="profile-mark" aria-hidden="true">✳</div>
+                <div class="profile-meta-top">
+                    <span>Urban Planner × AI Product</span>
+                    <span>Open to new projects <b class="profile-arrow" aria-hidden="true">⟶</b></span>
+                </div>
+                <svg class="profile-wordmark" viewBox="0 0 900 320" preserveAspectRatio="none" role="img" aria-label="PROFILE">
+                    <text x="0" y="310" font-size="360" textLength="900" lengthAdjust="spacingAndGlyphs">PROFILE</text>
+                </svg>
+                <div class="profile-circle" aria-hidden="true"></div>
+                <img class="profile-portrait-image" src="assets/profile/zhenyang-cutout.png" alt="人物肖像">
+                <div class="profile-side-label">Urban Planning · Spatial Thinking</div>
+                <div class="profile-side-label right">AI Product · Digital Experiences</div>
+                <div class="profile-main-info">
+                    <div class="profile-greeting">HELLO, I’M</div>
+                    <h2 class="profile-name-cn">徐振洋</h2>
+                    <div class="profile-name-en">XU ZHENYANG</div>
+                    <div class="profile-role">URBAN PLANNING × AI PRODUCT</div>
+                    <p class="profile-copy">从城乡规划出发，转向互联网 AI 产品。关注空间、数据与用户行为之间的连接。</p>
+                    <div class="profile-contact">xzy20010911@163.com</div>
+                </div>
+                <div class="profile-badge" aria-label="Open to new projects">
+                    <svg viewBox="0 0 100 100" aria-hidden="true">
+                        <defs><path id="profile-badge-ring" d="M50,50 m-42,0 a42,42 0 1,1 84,0 a42,42 0 1,1 -84,0"/></defs>
+                        <text font-size="7.8" letter-spacing="1.4"><textPath href="#profile-badge-ring" textLength="263">SPATIAL THINKING · DATA · AI PRODUCT · </textPath></text>
+                    </svg>
+                    <strong>OPEN<br>FOR NEW<br>PROJECTS</strong>
+                </div>
+            </article>
             <div class="city-card">
                 <div class="city-number">01</div>
                 <div class="city-label">第一站 · Origin</div>
@@ -891,7 +1020,6 @@
                 <div class="city-subtitle">起点 · 家乡与启蒙</div>
                 <div class="city-divider"></div>
                 <p class="city-desc">
-                    [个人介绍占位符]<br><br>
                     乌镇千年水乡肌理，小桥流水间的空间启蒙。
                     从城乡规划到产品经理，空间认知的起点。
                 </p>
