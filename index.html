@@ -686,6 +686,7 @@
         .profile-mark {
             position: absolute; left: 2%; top: 2%;
             color: var(--terrain); font-size: 4cqw; line-height: 1;
+            font-variant-emoji: text;
         }
         .profile-meta-top {
             position: absolute; inset: 2.7% 3.2% auto 6.4%;
@@ -1015,12 +1016,15 @@
         <!-- 桐乡 -->
         <section class="city-panel" id="tongxiang">
             <article class="origin-profile-card" aria-label="徐振洋个人介绍">
-                <div class="profile-mark" aria-hidden="true">✳</div>
+                <div class="profile-mark" aria-hidden="true">✳&#xFE0E;</div>
                 <svg class="profile-wordmark" viewBox="0 0 900 320" preserveAspectRatio="none" role="img" aria-label="PROFILE">
                     <text x="0" y="310" font-size="360" textLength="900" lengthAdjust="spacingAndGlyphs">PROFILE</text>
                 </svg>
                 <div class="profile-circle" aria-hidden="true"></div>
-                <img class="profile-portrait-image" src="assets/profile/zhenyang-cutout.png" alt="人物肖像">
+                <picture>
+                    <source srcset="assets/profile/zhenyang-cutout.webp" type="image/webp">
+                    <img class="profile-portrait-image" src="assets/profile/zhenyang-cutout.png" alt="人物肖像">
+                </picture>
                 <div class="profile-side-label">Urban Planning · Spatial Thinking</div>
                 <div class="profile-side-label right">AI Product · Digital Experiences</div>
                 <div class="profile-main-info">
