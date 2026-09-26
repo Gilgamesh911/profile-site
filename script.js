@@ -188,6 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelMultiplier: 1,
         touchMultiplier: 2,
     });
+    // 暴露给画板灯箱：打开查看器时暂停页面滚动
+    window.__lenis = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));

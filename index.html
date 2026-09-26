@@ -758,6 +758,112 @@
         .profile-badge svg { position: absolute; inset: 5%; width: 90%; height: 90%; fill: currentColor; }
         .profile-badge strong { font: 700 1.45cqw/1.25 Arial, sans-serif; }
 
+        /* ===== 画板画廊（成都） ===== */
+        .gallery-panel {
+            position: absolute;
+            right: 5.4vw;
+            top: 50%;
+            width: min(500px, calc(100vw - 10vw));
+            height: 300px;
+            transform: translateY(-50%);
+            container-type: size;
+            background: var(--icy);
+            color: var(--deep);
+            clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+            padding: 2.4cqw 2.8cqw 2.8cqw;
+            display: flex; flex-direction: column; justify-content: center;
+            z-index: 5;
+        }
+        .gallery-head {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 2.6cqw;
+        }
+        .gallery-title { font: 700 3cqw/1.2 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+        .gallery-hint { font: 1.6cqw/1.2 var(--mono); opacity: .55; }
+        .gallery-grid { display: flex; gap: 2.2cqw; }
+        .canvas-thumb {
+            flex: 1; min-width: 0; padding: 0; border: 0; background: none;
+            cursor: pointer; text-align: left; color: inherit;
+            transition: transform .25s ease;
+        }
+        .canvas-thumb:hover { transform: translateY(-5px); }
+        .canvas-paper {
+            display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1 / 1.4142;
+            background: #fdfdf8;
+            border: 1px solid rgba(45,51,41,.18);
+            box-shadow: 0 6px 18px rgba(20,25,18,.18);
+            position: relative;
+        }
+        .canvas-paper::after {
+            content: ''; position: absolute; inset: 6%;
+            border: 1px dashed rgba(45,51,41,.25);
+        }
+        .canvas-paper i {
+            font: 700 7cqw/1 var(--display); font-style: normal;
+            color: rgba(45,51,41,.16);
+        }
+        .canvas-paper img { width: 100%; height: 100%; object-fit: contain; background: #fff; display: block; }
+        .canvas-name {
+            display: block; margin-top: 1.3cqw;
+            font: 1.7cqw/1.3 var(--mono);
+        }
+        .canvas-name em { display: block; font-style: normal; opacity: .5; font-size: 1.4cqw; }
+
+        /* ===== 画板灯箱 ===== */
+        .canvas-viewer {
+            position: fixed; inset: 0; z-index: 500;
+            display: none; align-items: center; justify-content: center;
+        }
+        .canvas-viewer.open { display: flex; }
+        .viewer-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(14, 18, 13, .92);
+            backdrop-filter: blur(6px);
+        }
+        .viewer-stage {
+            position: relative; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+        }
+        .viewer-canvas {
+            height: min(80vh, 130vw);
+            aspect-ratio: 1 / 1.4142;
+            background: #fdfdf8;
+            box-shadow: 0 24px 80px rgba(0,0,0,.5);
+            overflow: hidden;
+            position: relative;
+        }
+        .viewer-image {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            color: rgba(45,51,41,.4); letter-spacing: 2px;
+            user-select: none;
+        }
+        .viewer-image img {
+            width: 100%; height: 100%; object-fit: fill; display: block;
+            transform-origin: center; cursor: grab;
+            will-change: transform;
+        }
+        .viewer-image img.dragging { cursor: grabbing; }
+        .viewer-caption {
+            display: flex; gap: 18px; align-items: baseline;
+            color: var(--icy); font-family: var(--mono); font-size: 13px;
+        }
+        .viewer-caption #viewerCounter { opacity: .55; }
+        .viewer-btn, .viewer-close {
+            position: absolute; z-index: 3;
+            width: 46px; height: 46px; border-radius: 50%;
+            border: 1px solid rgba(226,255,204,.35);
+            background: rgba(20,25,18,.55); color: var(--icy);
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .2s, opacity .2s;
+        }
+        .viewer-btn:hover, .viewer-close:hover { background: rgba(20,25,18,.85); }
+        .viewer-btn.prev { left: 3vw; top: 50%; transform: translateY(-50%); }
+        .viewer-btn.next { right: 3vw; top: 50%; transform: translateY(-50%); }
+
         /* ===== 终章：星辰大海 ===== */
         .footer-panel {
             min-height: 100vh;
@@ -903,6 +1009,32 @@
             /* 移动端：城市卡片在前，内容卡片在后 */
             #tongxiang .city-card { order: 1; }
             #tongxiang .origin-profile-card { order: 2; margin: 0 auto 1.4rem; }
+            #chengdu {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 1.2rem;
+                padding: 0 1rem;
+            }
+            #chengdu .city-card { order: 1; }
+            #chengdu .gallery-panel {
+                order: 2;
+                position: relative;
+                right: auto; top: auto; transform: none;
+                width: 88vw; height: auto;
+                container-type: inline-size;
+                margin: 0 auto 1.4rem;
+                padding: 1.4rem 1.2rem 1.6rem;
+            }
+            #chengdu .gallery-title { font-size: 6.5cqw; }
+            #chengdu .gallery-hint { font-size: 3.4cqw; }
+            #chengdu .gallery-grid { gap: 3.5cqw; }
+            #chengdu .canvas-paper i { font-size: 12cqw; }
+            #chengdu .canvas-name { font-size: 3.4cqw; margin-top: 2.4cqw; }
+            #chengdu .canvas-name em { font-size: 2.9cqw; }
+            .viewer-btn.prev { left: 2vw; }
+            .viewer-btn.next { right: 2vw; }
+            .viewer-canvas { height: min(70vh, 135vw); }
             .footer-title { font-size: clamp(2.6rem, 14vw, 4rem); }
             .footer-subtitle { font-size: 0.72rem; padding: 0 1.5rem; }
         }
@@ -960,7 +1092,7 @@
 
     <!-- 顶部浅绿横条 -->
     <header class="topbar">
-        <div class="brand" id="brandHome">徐振洋<small>PERSONAL ATLAS</small></div>
+        <div class="brand" id="brandHome"><small>PERSONAL ATLAS</small></div>
         <div class="topbar-right">
             <ul class="nav-links">
                 <li><a href="#tongxiang">桐乡</a></li>
@@ -1070,10 +1202,30 @@
                 <div class="city-subtitle">2020-2025 · 本科阶段</div>
                 <div class="city-divider"></div>
                 <p class="city-desc">
-                    [本科经历占位符]<br><br>
-                    西南交通大学建筑学院，城乡规划专业 TOP 10%。
-                    古建筑测绘、BIM 建模、空间句法研究。
+                    西南交通大学建筑学院城乡规划专业，专业排名前 10%。<br><br>
+                    研究领域：古建数字孪生、BIM 建模、空间句法等。曾发表三篇国际会议论文，获设计类奖项与国奖若干。最后自愿放弃保研直博，开启新篇章。
                 </p>
+            </div>
+            <!-- 画板画廊 -->
+            <div class="gallery-panel" id="chengduGallery">
+                <div class="gallery-head">
+                    <span class="gallery-title">画板 · Sketch Gallery</span>
+                    <span class="gallery-hint">点击画板放大查看</span>
+                </div>
+                <div class="gallery-grid">
+                    <button class="canvas-thumb" data-canvas="0" aria-label="打开画板 01">
+                        <span class="canvas-paper" aria-hidden="true"><img src="assets/gallery/chengdu/canvas01/thumb.webp" alt=""></span>
+                        <span class="canvas-name">“认”性焕活，城乡共融<em>村庄规划 · 4 张</em></span>
+                    </button>
+                    <button class="canvas-thumb" data-canvas="1" aria-label="打开画板 02">
+                        <span class="canvas-paper" aria-hidden="true"><img src="assets/gallery/chengdu/canvas02/thumb.webp" alt=""></span>
+                        <span class="canvas-name">流动的“灵韵”<em>城市调研 · 13 张</em></span>
+                    </button>
+                    <button class="canvas-thumb" data-canvas="2" aria-label="打开画板 03">
+                        <span class="canvas-paper" aria-hidden="true"><img src="assets/gallery/chengdu/canvas03/thumb.webp" alt=""></span>
+                        <span class="canvas-name">环交大智慧城片区城市设计<em>毕业设计 · 2 张</em></span>
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -1159,6 +1311,174 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="galaxy-canvas.js?v=18"></script>
-    <script src="script.js?v=22"></script>
+    <script src="script.js?v=23"></script>
+    <!-- 画板灯箱（置于 body 直接子级，避免被 content-layer 层叠上下文遮挡） -->
+    <div class="canvas-viewer" id="canvasViewer" aria-hidden="true" role="dialog" aria-label="画板查看器">
+        <div class="viewer-backdrop" data-close></div>
+        <div class="viewer-stage">
+            <div class="viewer-canvas">
+                <div class="viewer-image" id="viewerImage">IMAGE 1 / 4</div>
+            </div>
+            <div class="viewer-caption">
+                <span id="viewerTitle">画板 01</span>
+                <span id="viewerCounter">1 / 4</span>
+            </div>
+        </div>
+        <button class="viewer-btn prev" id="viewerPrev" aria-label="上一张">←</button>
+        <button class="viewer-btn next" id="viewerNext" aria-label="下一张">→</button>
+    </div>
+
+    <script>
+    (function () {
+        // 画板数据：图片为 {pc, m} 双档，PC 端用高清图，移动端用压缩图；ratio 为宽/高
+        const CANVASES = [
+            {
+                title: '“认”性焕活，城乡共融',
+                ratio: 1 / 1.4142,
+                images: [1, 2, 3, 4].map(n => ({
+                    pc: 'assets/gallery/chengdu/canvas01/' + n + '-pc.jpg',
+                    m: 'assets/gallery/chengdu/canvas01/' + n + '-m.jpg',
+                })),
+            },
+            {
+                title: '流动的“灵韵”',
+                ratio: 3124 / 1754,
+                images: Array.from({ length: 13 }, (_, i) => i + 1).map(n => ({
+                    pc: 'assets/gallery/chengdu/canvas02/' + n + '-pc.jpg',
+                    m: 'assets/gallery/chengdu/canvas02/' + n + '-m.jpg',
+                })),
+            },
+            {
+                title: '环交大智慧城片区城市设计',
+                ratio: 2923 / 4678,
+                images: [1, 2].map(n => ({
+                    pc: 'assets/gallery/chengdu/canvas03/' + n + '-pc.jpg',
+                    m: 'assets/gallery/chengdu/canvas03/' + n + '-m.jpg',
+                })),
+            },
+        ];
+
+        const viewer = document.getElementById('canvasViewer');
+        const stage = viewer.querySelector('.viewer-canvas');
+        const imageEl = document.getElementById('viewerImage');
+        const titleEl = document.getElementById('viewerTitle');
+        const counterEl = document.getElementById('viewerCounter');
+        let curCanvas = 0, curIndex = 0;
+
+        /* --- 缩放 / 平移状态 --- */
+        const zoom = { s: 1, tx: 0, ty: 0 };
+        function applyZoom() {
+            const img = imageEl.querySelector('img');
+            if (img) img.style.transform = 'translate(' + zoom.tx + 'px,' + zoom.ty + 'px) scale(' + zoom.s + ')';
+        }
+        function clampPan() {
+            const w = stage.clientWidth, h = stage.clientHeight;
+            if (zoom.s <= 1) { zoom.s = 1; zoom.tx = 0; zoom.ty = 0; return; }
+            const mx = w * (zoom.s - 1) / 2, my = h * (zoom.s - 1) / 2;
+            zoom.tx = Math.min(mx, Math.max(-mx, zoom.tx));
+            zoom.ty = Math.min(my, Math.max(-my, zoom.ty));
+        }
+        function resetZoom() { zoom.s = 1; zoom.tx = 0; zoom.ty = 0; }
+
+        // 滚轮缩放（以光标为中心）
+        stage.addEventListener('wheel', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!imageEl.querySelector('img')) return;
+            const r = stage.getBoundingClientRect();
+            const px = e.clientX - r.left - r.width / 2;
+            const py = e.clientY - r.top - r.height / 2;
+            const ns = Math.min(10, Math.max(1, zoom.s * Math.exp(-e.deltaY * 0.002)));
+            const k = ns / zoom.s;
+            zoom.tx = px - (px - zoom.tx) * k;
+            zoom.ty = py - (py - zoom.ty) * k;
+            zoom.s = ns;
+            clampPan(); applyZoom();
+        }, { passive: false });
+
+        // 拖拽平移（放大时）
+        let dragging = false, sx = 0, sy = 0;
+        stage.addEventListener('pointerdown', e => {
+            if (!imageEl.querySelector('img') || zoom.s <= 1) return;
+            dragging = true; sx = e.clientX - zoom.tx; sy = e.clientY - zoom.ty;
+            stage.setPointerCapture(e.pointerId);
+            imageEl.querySelector('img').classList.add('dragging');
+        });
+        stage.addEventListener('pointermove', e => {
+            if (!dragging) return;
+            zoom.tx = e.clientX - sx; zoom.ty = e.clientY - sy;
+            clampPan(); applyZoom();
+        });
+        ['pointerup', 'pointercancel'].forEach(ev => stage.addEventListener(ev, () => {
+            dragging = false;
+            const img = imageEl.querySelector('img');
+            if (img) img.classList.remove('dragging');
+        }));
+
+        function render() {
+            const c = CANVASES[curCanvas];
+            const total = c.images ? c.images.length : c.count;
+            curIndex = (curIndex + total) % total;
+            resetZoom();
+            // 画框宽高比随画板内容自适应（竖版 / 横版都按原图比例）
+            const ar = c.ratio || (1 / 1.4142);
+            if (ar >= 1) {
+                stage.style.aspectRatio = ar + ' / 1';
+                stage.style.width = 'min(94vw, ' + (ar * 82).toFixed(2) + 'vh)';
+                stage.style.height = 'auto';
+            } else {
+                stage.style.aspectRatio = '1 / ' + (1 / ar).toFixed(4);
+                stage.style.width = '';
+                stage.style.height = '';
+            }
+            // 有真实图片就渲染 <picture>（PC 高清 / 移动压缩），否则渲染占位文字
+            if (c.images) {
+                const im = c.images[curIndex];
+                imageEl.innerHTML =
+                    '<picture>' +
+                    '<source media="(max-width: 768px)" srcset="' + im.m + '">' +
+                    '<img src="' + im.pc + '" alt="' + c.title + ' 第 ' + (curIndex + 1) + ' 张" draggable="false">' +
+                    '</picture>';
+            } else {
+                imageEl.textContent = 'IMAGE ' + (curIndex + 1) + ' / ' + total;
+            }
+            titleEl.textContent = c.title;
+            counterEl.textContent = (curIndex + 1) + ' / ' + total;
+        }
+
+        // 打开查看器时暂停 Lenis 页面滚动，关闭时恢复原状态
+        let lenisWasRunning = false;
+        function open(i) {
+            curCanvas = i; curIndex = 0;
+            render();
+            const lenis = window.__lenis;
+            if (lenis) { lenisWasRunning = !lenis.isStopped; lenis.stop(); }
+            viewer.classList.add('open');
+            viewer.setAttribute('aria-hidden', 'false');
+            document.documentElement.style.overflow = 'hidden';
+        }
+        function close() {
+            viewer.classList.remove('open');
+            viewer.setAttribute('aria-hidden', 'true');
+            document.documentElement.style.overflow = '';
+            const lenis = window.__lenis;
+            if (lenis && lenisWasRunning) lenis.start();
+        }
+        function step(d) { curIndex += d; render(); }
+
+        document.querySelectorAll('.canvas-thumb').forEach(btn => {
+            btn.addEventListener('click', () => open(+btn.dataset.canvas));
+        });
+        document.getElementById('viewerPrev').addEventListener('click', () => step(-1));
+        document.getElementById('viewerNext').addEventListener('click', () => step(1));
+        viewer.querySelector('[data-close]').addEventListener('click', close);
+        document.addEventListener('keydown', e => {
+            if (!viewer.classList.contains('open')) return;
+            if (e.key === 'Escape') close();
+            if (e.key === 'ArrowLeft') step(-1);
+            if (e.key === 'ArrowRight') step(1);
+        });
+    })();
+    </script>
 </body>
 </html>
